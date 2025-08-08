@@ -13,7 +13,10 @@ function Login({ onLoginSuccess }) {
       params.append('username', username)
       params.append('password', password)
 
-      const res = await axios.post('/login', params)
+      const res = await axios.post('/login', params, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      })
+
 
       if (res.data?.access_token) {
         localStorage.setItem('token', res.data.access_token)
