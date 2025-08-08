@@ -15,7 +15,9 @@ app.include_router(schedule.router)
 origins = [
     "http://localhost",
     "http://localhost:3001", # Địa chỉ của frontend
-    "https://court-schedule-nine.vercel.app"
+    "https://court-schedule-nine.vercel.app",
+    "http://court-schedule-nine.vercel.app" 
+
 ]
 
 # Cho phép React frontend truy cập
