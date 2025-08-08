@@ -3,7 +3,8 @@ import axios from 'axios'
 
 // Tạo một instance axios
 const instance = axios.create({
-  baseURL: 'http://127.0.0.1:8001', // Base URL của FastAPI
+  // baseURL: 'http://127.0.0.1:8001', // Base URL của FastAPI
+  baseURL: import.meta.env.VITE_API_URL,
 })
 
 // 👉 Interceptor cho REQUEST: Tự động gắn token
