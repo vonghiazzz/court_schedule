@@ -15,7 +15,8 @@ app.include_router(schedule.router)
 origins = [
     "http://localhost",
     "http://localhost:3001", # Địa chỉ của frontend
-    
+    "https://talented-liberation-production.vercel.app",  # Thêm dòng này
+
 ]
 
 # Cho phép React frontend truy cập
