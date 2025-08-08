@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import Login from './pages/Login'
-import Schedule from './pages/Schedule'
 import JudgeCalendar from './pages/JudgeCalendar'
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -48,9 +47,6 @@ const [username, setUsername] = useState(() => localStorage.getItem("username") 
     
         {/* Trang đăng nhập */}
         <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
-
-        {/* Trang chính: lịch xét xử */}
-        <Route path="/schedule" element={<Schedule />} />
 
         {/* Trang lịch dạng vạn niên của thẩm phán */}
          <Route
