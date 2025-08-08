@@ -1,0 +1,50 @@
+version: '3.9'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:80"
+
+  backend:
+    build: ./backend
+    env_file:
+      - ./backend/.env  
+    environment:
+      - APP_ENV=docker # Ghi đè biến APP_ENV
+    depends_on:
+      - db
+    ports:
+      - "8001:8000"
+
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: court_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+
+  # Nginx không có service nào phụ thuộc vào, nó sẽ gặp lỗi
+  # Cần thêm `depends_on`
+ 
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  postgres_data:
+
