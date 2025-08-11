@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 
-# load_dotenv()
+load_dotenv()
 APP_ENV = os.getenv("APP_ENV", "local")
 
 if APP_ENV == "local":
