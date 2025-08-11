@@ -5,6 +5,12 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+
+
+
 # Chỉ load .env khi chạy local (máy dev)
 if os.getenv("APP_ENV") in (None, "local"):
     load_dotenv()
@@ -21,6 +27,9 @@ else:
 
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL is not set. Check your environment variables.")
+
+logging.debug(f"APP_ENV = {APP_ENV}")
+logging.debug(f"DATABASE_URL = {DATABASE_URL}")
 
 
 engine = create_engine(DATABASE_URL)
