@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 
-load_dotenv()
+# load_dotenv()
 APP_ENV = os.getenv("APP_ENV", "local")
 
 if APP_ENV == "local":
@@ -24,3 +24,7 @@ if not DATABASE_URL:
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)
 Base = declarative_base()
+
+
+print("APP_ENV:", APP_ENV)
+print("DATABASE_URL:", DATABASE_URL)
