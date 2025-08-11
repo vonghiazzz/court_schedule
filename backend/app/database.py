@@ -5,7 +5,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 
-load_dotenv()
+# Chỉ load .env khi chạy local (máy dev)
+if os.getenv("APP_ENV") in (None, "local"):
+    load_dotenv()
 APP_ENV = os.getenv("APP_ENV", "local")
 
 if APP_ENV == "local":
