@@ -7,6 +7,8 @@ const ROOMS = ["Hội trường 1", "Hội trường 2", "Hội trường 3", "H
 const SHIFTS = ["Sáng", "Chiều"];
 const WEEKDAYS = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
 const MONTHS = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"];
+const JUROR = ["Nguyen Văn A", "Nguyen Văn B", "Nguyen Văn C","Nguyen Văn D", "Nguyen Văn E","Nguyen Văn F","Nguyen Văn G","Nguyen Văn H", "Nguyen Văn I", "Nguyen Văn K"]
+
 
 export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }) {
     const navigate = useNavigate();
@@ -17,7 +19,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRoom, setSelectedRoom] = useState("");
-    const [description, setDescription] = useState("");
+    const [selectedJurors, setSelectedJurors] = useState([]);
     const [selectedShift, setSelectedShift] = useState("");
     const [note, setNote] = useState("");
     const [endTime, setEndTime] = useState("");
@@ -25,13 +27,23 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
     const [searchJudgeTerm, setSearchJudgeTerm] = useState("");
 
 
+    // Tạo mảng năm (vd 2020-2030) để chọn
+    const YEARS = Array.from({ length: 11 }, (_, i) => 2020 + i);
+
+    
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
     const today = new Date();
+    const [filterMonth, setFilterMonth] = useState(month);
+    const [filterYear, setFilterYear] = useState(year);
+
     today.setHours(0, 0, 0, 0); // Đặt giờ về 0 để so sánh ngày chính xác
 
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const firstDayWeekday = new Date(year, month, 1).getDay();
+    // const daysInMonth = new Date(year, month + 1, 0).getDate();
+    // const firstDayWeekday = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(filterYear, filterMonth + 1, 0).getDate();
+    const firstDayWeekday = new Date(filterYear, filterMonth, 1).getDay();
+
 
     const thStyle = {
         border: "1px solid #ccc",
@@ -53,10 +65,16 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
     };
 
     // Lọc lịch trình chỉ trong tháng hiện tại
+    // const scheduleInMonth = schedule.filter(item => {
+    //     const itemDate = new Date(item.date);
+    //     return itemDate.getFullYear() === year && itemDate.getMonth() === month;
+    // });
     const scheduleInMonth = schedule.filter(item => {
         const itemDate = new Date(item.date);
-        return itemDate.getFullYear() === year && itemDate.getMonth() === month;
+        return itemDate.getFullYear() === filterYear && itemDate.getMonth() === filterMonth;
     });
+
+
 
     // Gom thống kê theo tất cả thẩm phán trong tháng
     const stats = scheduleInMonth.reduce((acc, s) => {
@@ -80,40 +98,52 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
         return acc;
     }, {});
 
+    // Hàm bỏ dấu tiếng Việt
+const removeVietnameseTones = (str) => {
+    return str
+        .normalize("NFD") // tách dấu ra khỏi chữ
+        .replace(/[\u0300-\u036f]/g, "") // xóa các dấu
+        .replace(/đ/g, "d")
+        .replace(/Đ/g, "D");
+};
+
     // Lọc danh sách lịch theo từ khóa tìm kiếm
     const filteredSchedules = scheduleInMonth.filter(item => {
-        const keyword = searchTerm.toLowerCase();
+        const keyword = removeVietnameseTones(searchTerm.toLowerCase());
+
+        const jurorsMatch = Array.isArray(item.jurors)
+            ? item.jurors.some(juror =>
+                removeVietnameseTones(juror.toLowerCase()).includes(keyword)
+            )
+            : removeVietnameseTones((item.jurors || "").toLowerCase()).includes(keyword);
+
         const matchKeyword =
-            item.room?.toLowerCase().includes(keyword) ||
-            item.shift?.toLowerCase().includes(keyword) ||
-            item.note?.toLowerCase().includes(keyword) ||
-            item.start_time?.toLowerCase().includes(keyword) ||
-            item.end_time?.toLowerCase().includes(keyword) ||
-            item.user?.username?.toLowerCase().includes(keyword) ||
-            item.description?.toLowerCase().includes(keyword) ||
-            item.date?.includes(keyword);
+            removeVietnameseTones(item.room?.toLowerCase() || "").includes(keyword) ||
+            removeVietnameseTones(item.shift?.toLowerCase() || "").includes(keyword) ||
+            removeVietnameseTones(item.note?.toLowerCase() || "").includes(keyword) ||
+            removeVietnameseTones(item.start_time?.toLowerCase() || "").includes(keyword) ||
+            removeVietnameseTones(item.end_time?.toLowerCase() || "").includes(keyword) ||
+            removeVietnameseTones(item.user?.username?.toLowerCase() || "").includes(keyword) ||
+            jurorsMatch ||
+            removeVietnameseTones(item.date?.toLowerCase() || "").includes(keyword);
 
         return matchKeyword;
     });
 
-    const filteredJudgeSchedules = scheduleInMonth.filter(item => {
-        const keyword = searchJudgeTerm.toLowerCase();
-        const matchKeyword =
-            item.user?.username?.toLowerCase().includes(keyword) 
-            return matchKeyword;
-    });
-    const openRegisterModal = (dateStr) => {
+
+
+       const openRegisterModal = (dateStr) => {
         setSelectedDate(dateStr);
         setSelectedRoom("");
         setSelectedShift("");
         setNote("");
         setEndTime("");
         setStartTime("");
-        setDescription("");
+        setSelectedJurors("");
         setIsModalOpen(true);
     };
 
-    // 👉 Load lịch xét xử từ API
+    // Load lịch xét xử từ API
     useEffect(() => {
         if (sessionStorage.getItem("justLoggedIn") === "true") {
             toast.success("Đăng nhập thành công!");
@@ -132,10 +162,16 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
         fetchSchedule();
     }, [currentDate]);
 
-    // 👉 Gửi đăng ký mới
+    useEffect(() => {
+        setSelectedDate("");
+        setIsModalOpen(false);
+        }, [filterMonth, filterYear]);
+
+
+    // Gửi đăng ký mới
     const handleRegister = async () => {
-        if (!selectedRoom || !selectedShift || !description || !selectedDate || !startTime || !endTime) {
-            toast.warning("Vui lòng điền đầy đủ hội trường, buổi và mô tả.");
+        if (!selectedRoom || !selectedShift || !selectedJurors || !selectedDate || !startTime || !endTime) {
+            toast.warning("Vui lòng điền đầy đủ hội trường, buổi và hội thẩm.");
             return;
         }
 
@@ -148,12 +184,17 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
             return;
         }
 
+        if (selectedJurors.length < 2) {
+            toast.warning("Vui lòng chọn ít nhất 2 hội thẩm.");
+            return;
+        } 
+        
         try {
-            const res = await api.post("/schedule", {
+            const res = await api.post("/schedule/", {
                 date: selectedDate,
                 room: selectedRoom,
                 shift: selectedShift,
-                description: description,
+                jurors: selectedJurors,
                 note: note,
                 start_time: startTime,
                 end_time: endTime,
@@ -161,7 +202,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
 
             setSchedule(prev => [...prev, res.data]);
             setIsModalOpen(false);
-            setDescription("");
+            setSelectedJurors("");
             setNote("");
             setStartTime("");
             setEndTime("");
@@ -239,9 +280,22 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
 
     return (
         <div style={{ maxWidth: "100%", margin: "0 auto", padding: "20px", backgroundSize: "cover", backgroundRepeat: "no-repeat", backgroundPosition: "center" }}>
-            <h1 style={{ textAlign: "center", fontSize: "24px" }}>
-                Lịch Đăng Ký Phiên Xét Xử - {MONTHS[month]} {year}
+            <h1 style={{ textAlign: "center", fontSize: "40px" }}>
+                Lịch Đăng Ký Phiên Xét Xử - {MONTHS[filterMonth]} {filterYear}
             </h1>
+
+            {/* Chọn tháng & năm lọc */}
+            <div style={{ marginBottom: "10px", display: "flex", gap: "10px", justifyContent: "center", alignItems: "center" }}>
+            <label>Chọn tháng: </label>
+            <select value={filterMonth} onChange={e => setFilterMonth(parseInt(e.target.value))} style={{ padding: "5px" }}>
+                {MONTHS.map((m, idx) => <option key={idx} value={idx}>{m}</option>)}
+            </select>
+
+            <label>Chọn năm: </label>
+            <select value={filterYear} onChange={e => setFilterYear(parseInt(e.target.value))} style={{ padding: "5px" }}>
+                {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+            </select>
+            </div>
 
             <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", marginBottom: "10px" }}>
                 <span style={{ marginRight: "10px" }}>👤 Xin chào, <strong>{judgeName?.toUpperCase()}</strong></span>
@@ -332,34 +386,47 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
                                 {SHIFTS.map(s => <option key={s} value={s}>{s}</option>)}
                             </select>
                         </div>
-                        <div className="form-group">
-                            <label>Giờ bắt đầu xét xử:</label>
-                            <input
+
+                        <div className="row mt-2">
+                            <div className="col-md-6">
+                                <label>Giờ bắt đầu:</label>
+                                <input
                                 type="time"
                                 className="form-control"
                                 value={startTime}
                                 onChange={(e) => setStartTime(e.target.value)}
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Giờ kết thúc xét xử:</label>
-                            <input
+                                />
+                            </div>
+
+                            <div className="col-md-6">
+                                <label>Giờ kết thúc:</label>
+                                <input
                                 type="time"
                                 className="form-control"
                                 value={endTime}
                                 onChange={(e) => setEndTime(e.target.value)}
-                            />
-                        </div>
+                                />
+                            </div>
+                            </div>
+
+                       
                         <div style={{ marginTop: "10px" }}>
-                            <label>Mô tả:</label>
-                            <input
-                                type="text"
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                style={{ width: "100%" }}
-                                placeholder="Mô tả ngắn phiên xử"
-                            />
+                            <label>Hội thẩm:</label>
+                            <select
+                                multiple
+                                value={selectedJurors}
+                                onChange={(e) => {
+                                    const values = Array.from(e.target.selectedOptions, option => option.value);
+                                    setSelectedJurors(values);
+                                }}
+                                style={{ width: "100%", height: "100px" }}
+                            >
+                                {JUROR.map(s => (
+                                    <option key={s} value={s}>{s}</option>
+                                ))}
+                            </select>
                         </div>
+
                         <div className="form-group">
                             <label>Ghi chú:</label>
                             <textarea
@@ -414,7 +481,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
                 <h5>🧾 Tổng số vụ xét xử trong tháng: {filteredSchedules.length} vụ</h5>
                 <input
                     type="text"
-                    placeholder="🔍 Tìm kiếm theo thẩm phán, hội trường, mô tả..."
+                    placeholder="🔍 Tìm kiếm theo thẩm phán, hội trường, hội thẩm..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     style={{ padding: "8px", width: "100%", marginBottom: "10px" }}
@@ -427,28 +494,35 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
                             <th style={thStyle}>Thời gian</th>
                             <th style={thStyle}>Hội trường</th>
                             <th style={thStyle}>Thẩm phán</th>
-                            <th style={thStyle}>Mô tả</th>
+                            <th style={thStyle}>Hội thẩm</th>
                             <th style={thStyle}>Ghi chú</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredSchedules.map((item) => (
-                            <tr key={item.id} style={{ borderBottom: "1px solid #ccc" }}>
-                                <td style={tdStyle}>{item.date}</td>
-                                <td style={tdStyle}>{item.shift}</td>
-                                <td style={tdStyle}>{item.start_time}-{item.end_time}</td>
-                                <td style={tdStyle}>{item.room}</td>
-                                <td style={tdStyle}>{item.user?.username}</td>
-                                <td style={tdStyle}>{item.description}</td>
-                                <td style={tdStyle}>{item.note || ""}</td>
-                            </tr>
-                        ))}
+                        {[...filteredSchedules]
+                            .sort((a, b) => new Date(a.date) - new Date(b.date)) // Sắp tăng dần theo ngày
+                            .map((item) => (
+                                <tr key={item.id} style={{ borderBottom: "1px solid #ccc" }}>
+                                    <td style={tdStyle}>{item.date}</td>
+                                    <td style={tdStyle}>{item.shift}</td>
+                                    <td style={tdStyle}>{item.start_time}-{item.end_time}</td>
+                                    <td style={tdStyle}>{item.room}</td>
+                                    <td style={tdStyle}>{item.user?.username}</td>
+                                    <td style={tdStyle}>
+                                        {Array.isArray(item.jurors) ? item.jurors.join(", ") : item.jurors}
+                                    </td>
+                                    <td style={tdStyle}>{item.note || ""}</td>
+                                </tr>
+                            ))}
                         {filteredSchedules.length === 0 && (
                             <tr>
-                                <td colSpan="7" style={{ textAlign: "center", padding: "10px" }}>Không có lịch phù hợp.</td>
+                                <td colSpan="7" style={{ textAlign: "center", padding: "10px" }}>
+                                    Không có lịch phù hợp.
+                                </td>
                             </tr>
                         )}
                     </tbody>
+
                 </table>
             </div>
         </div>

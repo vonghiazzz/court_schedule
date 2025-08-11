@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from app import models, schemas, database, auth
 from typing import List
 from app.auth import get_current_user
+from sqlalchemy import or_, func
+
 
 router = APIRouter(prefix="/schedule", tags=["Schedule"])
 
@@ -28,24 +30,43 @@ def create_schedule(
     ).all()
 
     if len(same_slot) >= 2:
-        raise HTTPException(status_code=400, detail="Buổi này đã đủ thẩm phán")
+        raise HTTPException(status_code=400, detail="Mỗi buổi chỉ được đăng ký 2 hội trường!")
+    
     # Kiểm tra có lịch trùng không
-    conflicts = db.query(models.Schedule).filter(
+    conflict = db.query(models.Schedule).filter(
         models.Schedule.date == schedule.date,
         models.Schedule.room == schedule.room,
         models.Schedule.start_time < schedule.end_time,
         models.Schedule.end_time > schedule.start_time
     ).all()
 
-    if conflicts:
+    if conflict:
         raise HTTPException(status_code=400, detail="Hội trường này đã có lịch trong khoảng thời gian này!")
 
+    # Kiểm tra trùng giờ cho cùng 1 thẩm phán/hội thẩm ở bất kỳ hội trường nào
+    conflicts = db.query(models.Schedule).filter(
+        models.Schedule.date == schedule.date,
+    or_(
+        models.Schedule.user_id == current_user.id,   # trùng thẩm phán
+        models.Schedule.jurors.op("&&")(schedule.jurors)  # overlap operator của Postgres
+    ),        
+        models.Schedule.start_time < schedule.end_time,
+        models.Schedule.end_time > schedule.start_time
+    ).all()
+
+    if conflicts:
+        raise HTTPException(
+            status_code=400,
+            detail="Thẩm phán/Hội thẩm này đã có lịch trong khoảng thời gian này ở hội trường khác!"
+        )
+
+    
 
     new_schedule = models.Schedule(
         date=schedule.date,
         room=schedule.room,
         shift=schedule.shift,
-        description=schedule.description,
+        jurors=[j.value for j in schedule.jurors], 
         note=schedule.note,
         start_time=schedule.start_time,
         end_time=schedule.end_time,
@@ -56,7 +77,7 @@ def create_schedule(
     db.refresh(new_schedule)
     return new_schedule
 
-@router.get("/", response_model=List[schemas.ScheduleOut])
+@router.get("", response_model=List[schemas.ScheduleOut])
 def get_all_schedules(db: Session = Depends(get_db)):
     return db.query(models.Schedule).all()
 

@@ -13,7 +13,7 @@ services:
     env_file:
       - ./backend/.env  
     environment:
-      - APP_ENV=docker # Ghi đè biến APP_ENV
+      - APP_ENV=docker 
     depends_on:
       - db
     ports:

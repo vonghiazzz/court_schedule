@@ -2,11 +2,8 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint,Time, Text
 from sqlalchemy.orm import relationship
 from app.database import Base
-import enum
+from sqlalchemy.dialects.postgresql import ARRAY
 
-class Period(str, enum.Enum):
-    morning = "morning"
-    afternoon = "afternoon"
 
 class User(Base):
     __tablename__ = "users"
@@ -19,12 +16,12 @@ class User(Base):
 class Schedule(Base):
     __tablename__ = "schedules"
     id = Column(Integer, primary_key=True, index=True)
-    date = Column(String)
-    room = Column(String)  # Đổi từ room => room
-    shift = Column(String)  # Đổi từ session => shift
-    description = Column(String)
-    start_time = Column(Time)  # ⏰ Bắt đầu
-    end_time = Column(Time)    # ⏰ Kết thúc
+    date = Column(String,nullable=False)
+    room = Column(String, nullable=False)  
+    shift = Column(String, nullable=False) 
+    jurors = Column(ARRAY(String), nullable=False) 
+    start_time = Column(Time, nullable=False) 
+    end_time = Column(Time, nullable=False)   
     note = Column(Text, nullable=True)
 
     user_id = Column(Integer, ForeignKey("users.id"))

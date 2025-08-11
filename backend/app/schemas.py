@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from typing import Optional
 from enum import Enum
 from datetime import date, time
+from typing import List
 
 class SessionEnum(str, Enum):
     morning = "Sáng"
@@ -19,6 +20,18 @@ class RoomEnum(str, Enum):
     H = "Hội trường 8"
     I = "Hội trường 9"
     K = "Hội trường 10"
+
+class JurorEnum(str, Enum):
+    A = "Nguyen Văn A"
+    B = "Nguyen Văn B"
+    C = "Nguyen Văn C"
+    D = "Nguyen Văn D"
+    E = "Nguyen Văn E"
+    F = "Nguyen Văn F"
+    G = "Nguyen Văn G"
+    H = "Nguyen Văn H"
+    I = "Nguyen Văn I"
+    K = "Nguyen Văn K"
 class UserCreate(BaseModel):
     username: str
     password: str
@@ -32,10 +45,10 @@ class UserOut(BaseModel):
     }
 
 class ScheduleCreate(BaseModel):
-    date: str                     # YYYY-MM-DD
-    room: RoomEnum                # 1-5
-    shift: SessionEnum          # sáng hoặc chiều
-    description: Optional[str] = None  # Mô tả tùy chọn
+    date: str                   
+    room: RoomEnum             
+    shift: SessionEnum         
+    jurors: List[JurorEnum]     
     start_time: Optional[time] = None
     end_time: Optional[time] = None
     note: Optional[str] = None
@@ -45,11 +58,11 @@ class ScheduleOut(BaseModel):
     date: str
     room: str
     shift: SessionEnum
-    description: Optional[str] = None
+    jurors: List[str] 
     start_time: Optional[time] = None
     end_time: Optional[time] = None
     note: Optional[str] = None
-    user: UserOut                 # người đã tạo lịch
+    user: UserOut                
 
 
     class Config:

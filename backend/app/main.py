@@ -15,12 +15,12 @@ app.include_router(schedule.router)
 origins = [
     "http://localhost",
     "http://localhost:3001", # Địa chỉ của frontend
+    "http://localhost:3000", # Địa chỉ của frontend
     "https://court-schedule-nine.vercel.app",
     "https://talented-liberation-production.up.railway.app",  # backend trên Railway
 
 ]
 
-# Cho phép React frontend truy cập
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
