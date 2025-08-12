@@ -1,6 +1,6 @@
 # app/main.py
 from fastapi import FastAPI
-from app.database import engine
+# from app.database import engine
 from app import models
 from app.routers import users, schedule
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-models.Base.metadata.create_all(bind=engine)
+# models.Base.metadata.create_all(bind=engine)
 app.include_router(users.router)
 app.include_router(schedule.router)
 
