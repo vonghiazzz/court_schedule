@@ -64,11 +64,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
         return `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
     };
 
-    // Lọc lịch trình chỉ trong tháng hiện tại
-    // const scheduleInMonth = schedule.filter(item => {
-    //     const itemDate = new Date(item.date);
-    //     return itemDate.getFullYear() === year && itemDate.getMonth() === month;
-    // });
+    // Lọc lịch trình chỉ trong tháng hiện tại    
     const scheduleInMonth = schedule.filter(item => {
         const itemDate = new Date(item.date);
         return itemDate.getFullYear() === filterYear && itemDate.getMonth() === filterMonth;
@@ -99,13 +95,13 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
     }, {});
 
     // Hàm bỏ dấu tiếng Việt
-const removeVietnameseTones = (str) => {
-    return str
-        .normalize("NFD") // tách dấu ra khỏi chữ
-        .replace(/[\u0300-\u036f]/g, "") // xóa các dấu
-        .replace(/đ/g, "d")
-        .replace(/Đ/g, "D");
-};
+    const removeVietnameseTones = (str) => {
+        return str
+            .normalize("NFD") // tách dấu ra khỏi chữ
+            .replace(/[\u0300-\u036f]/g, "") // xóa các dấu
+            .replace(/đ/g, "d")
+            .replace(/Đ/g, "D");
+    };
 
     // Lọc danh sách lịch theo từ khóa tìm kiếm
     const filteredSchedules = scheduleInMonth.filter(item => {
