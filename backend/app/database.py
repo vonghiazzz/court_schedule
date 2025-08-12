@@ -14,9 +14,7 @@ if APP_ENV == "local":
 elif APP_ENV == "docker":
     DATABASE_URL = os.getenv("DATABASE_URL_DOCKER")
 elif APP_ENV == "production":
-    # Mặc dù bạn đã có DATABASE_URL trong .env, hãy đảm bảo rằng
-    # biến môi trường được ưu tiên nếu nó đã được thiết lập từ bên ngoài.
-    DATABASE_URL = os.getenv("DATABASE_URL")
+    DATABASE_URL = os.getenv("DATABASE_URL_PRODUCTION")
 else:
     DATABASE_URL = None
 
