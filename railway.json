@@ -1,0 +1,12 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "name": "court-schedule-backend",
+  "services": [
+    {
+      "name": "backend",
+      "dockerfile": "backend/Dockerfile",
+      "buildCommand": "pip install -r backend/requirements.txt",
+      "startCommand": "uvicorn backend.app.main:app --host 0.0.0.0 --port 8000"
+    }
+  ]
+}
