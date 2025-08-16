@@ -13,6 +13,9 @@ if APP_ENV == "local":
     DATABASE_URL = os.getenv("DATABASE_URL_LOCAL")
 elif APP_ENV == "docker":
     DATABASE_URL = os.getenv("DATABASE_URL_DOCKER")
+elif APP_ENV == "production":
+    DATABASE_URL = os.getenv("DATABASE_URL_PRODUCTION")  # Render/Railway cấp
+
 else:
     DATABASE_URL = None
 print("APP_ENV:", os.getenv("APP_ENV"))
