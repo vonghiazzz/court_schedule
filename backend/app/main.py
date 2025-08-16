@@ -4,7 +4,6 @@ from app.database import engine
 from app import models
 from app.routers import users, schedule
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
 
 
 app = FastAPI()
@@ -33,6 +32,6 @@ app.add_middleware(
 )
 
 
-@app.get("/", include_in_schema=False)  # không hiển thị route này trong docs
+@app.get("/", include_in_schema=False)
 def root():
-    return RedirectResponse(url="/docs")
+    return {"message": "Court Schedule API is running. Go to /docs for API docs."}
