@@ -103,58 +103,77 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
             .replace(/Đ/g, "D");
     };
 
-    // Lọc danh sách lịch theo từ khóa tìm kiếm
-    const filteredSchedules = scheduleInMonth.filter(item => {
-        const keyword = removeVietnameseTones(searchTerm.toLowerCase());
+    // // Lọc danh sách lịch theo từ khóa tìm kiếm
+    // const filteredSchedules = scheduleInMonth.filter(item => {
+    //     const keyword = removeVietnameseTones(searchTerm.toLowerCase());
 
-        const jurorsMatch = Array.isArray(item.jurors)
-            ? item.jurors.some(juror =>
-                removeVietnameseTones(juror.toLowerCase()).includes(keyword)
-            )
-            : removeVietnameseTones((item.jurors || "").toLowerCase()).includes(keyword);
+    //     const jurorsMatch = Array.isArray(item.jurors)
+    //         ? item.jurors.some(juror =>
+    //             removeVietnameseTones(juror.toLowerCase()).includes(keyword)
+    //         )
+    //         : removeVietnameseTones((item.jurors || "").toLowerCase()).includes(keyword);
 
-        const matchKeyword =
-            removeVietnameseTones(item.room?.toLowerCase() || "").includes(keyword) ||
-            removeVietnameseTones(item.shift?.toLowerCase() || "").includes(keyword) ||
-            removeVietnameseTones(item.note?.toLowerCase() || "").includes(keyword) ||
-            removeVietnameseTones(item.start_time?.toLowerCase() || "").includes(keyword) ||
-            removeVietnameseTones(item.end_time?.toLowerCase() || "").includes(keyword) ||
-            removeVietnameseTones(item.user?.username?.toLowerCase() || "").includes(keyword) ||
-            jurorsMatch ||
-            removeVietnameseTones(item.date?.toLowerCase() || "").includes(keyword);
+    //     const matchKeyword =
+    //         removeVietnameseTones(item.room?.toLowerCase() || "").includes(keyword) ||
+    //         removeVietnameseTones(item.shift?.toLowerCase() || "").includes(keyword) ||
+    //         removeVietnameseTones(item.note?.toLowerCase() || "").includes(keyword) ||
+    //         removeVietnameseTones(item.start_time?.toLowerCase() || "").includes(keyword) ||
+    //         removeVietnameseTones(item.end_time?.toLowerCase() || "").includes(keyword) ||
+    //         removeVietnameseTones(item.user?.username?.toLowerCase() || "").includes(keyword) ||
+    //         jurorsMatch ||
+    //         removeVietnameseTones(item.date?.toLowerCase() || "").includes(keyword);
 
-        return matchKeyword;
-    });
+    //     return matchKeyword;
+    // });
 
 
 
-       const openRegisterModal = (dateStr) => {
-        setSelectedDate(dateStr);
-        setSelectedRoom("");
-        setSelectedShift("");
-        setNote("");
-        setEndTime("");
-        setStartTime("");
-        setSelectedJurors("");
-        setIsModalOpen(true);
+    //    const openRegisterModal = (dateStr) => {
+    //     setSelectedDate(dateStr);
+    //     setSelectedRoom("");
+    //     setSelectedShift("");
+    //     setNote("");
+    //     setEndTime("");
+    //     setStartTime("");
+    //     setSelectedJurors("");
+    //     setIsModalOpen(true);
+    // };
+
+    // // Load lịch xét xử từ API
+    // useEffect(() => {
+    //     if (sessionStorage.getItem("justLoggedIn") === "true") {
+    //         toast.success("Đăng nhập thành công!");
+    //         sessionStorage.removeItem("justLoggedIn");
+    //     }
+    //     const fetchSchedule = async () => {
+    //         try {
+    //             const res = await api.get("/schedule");
+    //             setSchedule(res.data);
+    //         } catch (err) {
+    //             console.error("Lỗi tải lịch:", err);
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
+    //     fetchSchedule();
+    // }, [currentDate]);
+    // ...existing code...
+    const fetchSchedule = async () => {
+        try {
+            const res = await api.get("/schedule");
+            setSchedule(res.data);
+        } catch (err) {
+            console.error("Lỗi tải lịch:", err);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    // Load lịch xét xử từ API
     useEffect(() => {
         if (sessionStorage.getItem("justLoggedIn") === "true") {
             toast.success("Đăng nhập thành công!");
             sessionStorage.removeItem("justLoggedIn");
         }
-        const fetchSchedule = async () => {
-            try {
-                const res = await api.get("/schedule");
-                setSchedule(res.data);
-            } catch (err) {
-                console.error("Lỗi tải lịch:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchSchedule();
     }, [currentDate]);
 
@@ -163,6 +182,13 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
         setIsModalOpen(false);
         }, [filterMonth, filterYear]);
 
+    useEffect(() => {
+        const interval = setInterval(() => {
+            fetchSchedule();
+        }, 5000); // 5 giây gọi lại API 1 lần
+
+        return () => clearInterval(interval);
+    }, []);
 
     // Gửi đăng ký mới
     const handleRegister = async () => {
@@ -206,6 +232,8 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
             setSelectedShift("");
             setSelectedDate("");
             toast.success("Đăng ký lịch xét xử thành công!");
+            await fetchSchedule(); 
+
         } catch (err) {
             toast.warning("Lỗi khi đăng ký phiên xử!");
             if (err.response?.status === 400) {
@@ -232,6 +260,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
             await api.delete(`/schedule/${item.id}`);
             setSchedule(prev => prev.filter(s => s.id !== item.id));
             toast.success("Xoá lịch thành công!");
+            await fetchSchedule(); 
         } catch (err) {
             console.error("Lỗi xoá:", err);
             toast.warning("Không thể xoá lịch này!");
