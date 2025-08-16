@@ -104,40 +104,40 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
     };
 
     // // Lọc danh sách lịch theo từ khóa tìm kiếm
-    // const filteredSchedules = scheduleInMonth.filter(item => {
-    //     const keyword = removeVietnameseTones(searchTerm.toLowerCase());
+    const filteredSchedules = scheduleInMonth.filter(item => {
+        const keyword = removeVietnameseTones(searchTerm.toLowerCase());
 
-    //     const jurorsMatch = Array.isArray(item.jurors)
-    //         ? item.jurors.some(juror =>
-    //             removeVietnameseTones(juror.toLowerCase()).includes(keyword)
-    //         )
-    //         : removeVietnameseTones((item.jurors || "").toLowerCase()).includes(keyword);
+        const jurorsMatch = Array.isArray(item.jurors)
+            ? item.jurors.some(juror =>
+                removeVietnameseTones(juror.toLowerCase()).includes(keyword)
+            )
+            : removeVietnameseTones((item.jurors || "").toLowerCase()).includes(keyword);
 
-    //     const matchKeyword =
-    //         removeVietnameseTones(item.room?.toLowerCase() || "").includes(keyword) ||
-    //         removeVietnameseTones(item.shift?.toLowerCase() || "").includes(keyword) ||
-    //         removeVietnameseTones(item.note?.toLowerCase() || "").includes(keyword) ||
-    //         removeVietnameseTones(item.start_time?.toLowerCase() || "").includes(keyword) ||
-    //         removeVietnameseTones(item.end_time?.toLowerCase() || "").includes(keyword) ||
-    //         removeVietnameseTones(item.user?.username?.toLowerCase() || "").includes(keyword) ||
-    //         jurorsMatch ||
-    //         removeVietnameseTones(item.date?.toLowerCase() || "").includes(keyword);
+        const matchKeyword =
+            removeVietnameseTones(item.room?.toLowerCase() || "").includes(keyword) ||
+            removeVietnameseTones(item.shift?.toLowerCase() || "").includes(keyword) ||
+            removeVietnameseTones(item.note?.toLowerCase() || "").includes(keyword) ||
+            removeVietnameseTones(item.start_time?.toLowerCase() || "").includes(keyword) ||
+            removeVietnameseTones(item.end_time?.toLowerCase() || "").includes(keyword) ||
+            removeVietnameseTones(item.user?.username?.toLowerCase() || "").includes(keyword) ||
+            jurorsMatch ||
+            removeVietnameseTones(item.date?.toLowerCase() || "").includes(keyword);
 
-    //     return matchKeyword;
-    // });
+        return matchKeyword;
+    });
 
 
 
-    //    const openRegisterModal = (dateStr) => {
-    //     setSelectedDate(dateStr);
-    //     setSelectedRoom("");
-    //     setSelectedShift("");
-    //     setNote("");
-    //     setEndTime("");
-    //     setStartTime("");
-    //     setSelectedJurors("");
-    //     setIsModalOpen(true);
-    // };
+       const openRegisterModal = (dateStr) => {
+        setSelectedDate(dateStr);
+        setSelectedRoom("");
+        setSelectedShift("");
+        setNote("");
+        setEndTime("");
+        setStartTime("");
+        setSelectedJurors("");
+        setIsModalOpen(true);
+    };
 
     // // Load lịch xét xử từ API
     // useEffect(() => {
