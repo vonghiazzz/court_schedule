@@ -331,7 +331,14 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
                             }}
                         >
                             <div style={{ fontWeight: "bold", marginBottom: "4px" }}>{day}</div>
-                            {dayEvents.map((ev, i) => (
+                            {dayEvents.map((ev, i) => {
+                            const eventDate = new Date(ev.date);
+                            eventDate.setHours(0, 0, 0, 0);
+                            const now = new Date();
+                            now.setHours(0, 0, 0, 0);
+                            const isFuture = eventDate > now;
+
+                            return (
                                 <div key={i} style={{
                                     fontSize: "12px",
                                     backgroundColor: ev.user?.username === judgeName ? "#55d099ff" : "#bfc4b7ff",
@@ -344,7 +351,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
                                 }}>
                                     <span>{ev.room} - {ev.shift}</span><br />
                                     <span style={{ fontStyle: "italic" }}>{ev.user?.username || "?"}</span>
-                                    {ev.user?.username === judgeName && (
+                                    {ev.user?.username === judgeName && isFuture && (
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
@@ -356,7 +363,8 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
                                         </button>
                                     )}
                                 </div>
-                            ))}
+                            );
+                        })}
                         </div>
                     );
                 })}
