@@ -4,11 +4,14 @@ from app.database import engine
 from app import models
 from app.routers import users, schedule
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 
 
 app = FastAPI()
 
+# Tạo bảng trong DB nếu chưa có
 models.Base.metadata.create_all(bind=engine)
+
 app.include_router(users.router)
 app.include_router(schedule.router)
 
@@ -28,3 +31,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.get("/", include_in_schema=False)  # không hiển thị route này trong docs
+def root():
+    return RedirectResponse(url="/docs")
