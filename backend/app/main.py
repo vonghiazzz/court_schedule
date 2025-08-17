@@ -1,12 +1,23 @@
 # app/main.py
 from fastapi import FastAPI
-from app.database import engine
+from app.database import engine, SessionLocal
 from app import models
 from app.routers import users, schedule
 from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI()
+
+# XÓA dữ liệu schedules khi khởi động server
+@app.on_event("startup")
+def clear_schedules():
+    db = SessionLocal()
+    try:
+        db.execute("DELETE FROM schedules;")
+        db.commit()
+        print("✅ All schedules deleted on startup")
+    finally:
+        db.close()
 
 # Tạo bảng trong DB nếu chưa có
 models.Base.metadata.create_all(bind=engine)
