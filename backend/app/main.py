@@ -8,6 +8,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
+# Tạo bảng trong DB nếu chưa có
+models.Base.metadata.create_all(bind=engine)
+
 # XÓA dữ liệu schedules khi khởi động server
 @app.on_event("startup")
 def clear_schedules():
@@ -19,8 +22,6 @@ def clear_schedules():
     finally:
         db.close()
 
-# Tạo bảng trong DB nếu chưa có
-models.Base.metadata.create_all(bind=engine)
 
 app.include_router(users.router)
 app.include_router(schedule.router)
