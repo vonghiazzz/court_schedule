@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import api from "../utils/axios";
 import { toast } from "react-toastify";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 const ROOMS = ["Hội trường 1", "Hội trường 2", "Hội trường 3", "Hội trường 4", "Hội trường 5", "Hội trường 6", "Hội trường 7", "Hội trường 8", "Hội trường 9", "Hội trường 10"];
 const SHIFTS = ["Sáng", "Chiều"];
@@ -26,6 +28,42 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
     const [endTime, setEndTime] = useState("");
     const [startTime, setStartTime] = useState("");
     const [searchJudgeTerm, setSearchJudgeTerm] = useState("");
+
+
+    // Hàm xuất Excel cho danh sách lịch xét xử từng thẩm phán
+    const handleDownloadJudgeStats = () => {
+        const data = Object.entries(stats)
+            .filter(([name]) => name.toLowerCase().includes(searchJudgeTerm.toLowerCase()))
+            .map(([name, d]) => ({
+                "Thẩm phán": name,
+                "Đã hoàn thành": d.done,
+                "Chưa hoàn thành": d.pending,
+                "Tổng đăng ký": d.total
+            }));
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "JudgeStats");
+        const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+        saveAs(new Blob([excelBuffer], { type: "application/octet-stream" }), "JudgeStats.xlsx");
+    };
+
+    // Hàm xuất Excel cho danh sách lịch xét xử trong tháng
+    const handleDownloadSchedule = () => {
+        const data = filteredSchedules.map(item => ({
+            "Ngày": item.date,
+            "Buổi": item.shift,
+            "Thời gian": `${item.start_time}-${item.end_time}`,
+            "Hội trường": item.room,
+            "Thẩm phán": item.user?.username,
+            "Hội thẩm": Array.isArray(item.jurors) ? item.jurors.join(", ") : item.jurors,
+            "Ghi chú": item.note || ""
+        }));
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Schedule");
+        const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+        saveAs(new Blob([excelBuffer], { type: "application/octet-stream" }), "Schedule.xlsx");
+    };
 
 
     // Tạo mảng năm (vd 2020-2030) để chọn
@@ -479,6 +517,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
 
             <div style={{ marginTop: "40px" }}>
                 <h3>📋 Danh sách lịch xét xử từng thẩm phán trong tháng</h3>
+                <button onClick={handleDownloadJudgeStats} style={{ marginBottom: "10px" }}>⬇️ Tải về bảng Excel</button>
                 <input
                     type="text"
                     placeholder="🔍 Tìm kiếm theo thẩm phán"
@@ -512,6 +551,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
 
             <div style={{ marginTop: "40px" }}>
                 <h3>📋 Danh sách lịch xét xử trong tháng</h3>
+                <button onClick={handleDownloadSchedule} style={{ marginBottom: "10px" }}>⬇️ Tải về bảng Excel</button>
                 <h5>🧾 Tổng số vụ xét xử trong tháng: {filteredSchedules.length} vụ</h5>
                 <input
                     type="text"
