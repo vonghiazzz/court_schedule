@@ -7,7 +7,8 @@ const ROOMS = ["Hội trường 1", "Hội trường 2", "Hội trường 3", "H
 const SHIFTS = ["Sáng", "Chiều"];
 const WEEKDAYS = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
 const MONTHS = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"];
-const JUROR = ["Nguyen Văn A", "Nguyen Văn B", "Nguyen Văn C","Nguyen Văn D", "Nguyen Văn E","Nguyen Văn F","Nguyen Văn G","Nguyen Văn H", "Nguyen Văn I", "Nguyen Văn K"]
+const JUROR = Array.from({ length: 60 }, (_, i) => `Người số ${i + 1}`);
+
 
 
 export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }) {
