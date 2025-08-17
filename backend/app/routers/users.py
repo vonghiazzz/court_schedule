@@ -4,6 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app import schemas, models, auth, database
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import Body
+
 
 router = APIRouter()
 
@@ -39,6 +41,21 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 @router.get("/me", response_model=schemas.UserOut)
 def read_current_user(current_user: schemas.UserOut = Depends(auth.get_current_user)):
     return current_user
+
+@router.post("/change-password")
+def change_password(
+    old_password: str = Body(...),
+    new_password: str = Body(...),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth.get_current_user)
+):
+    user = db.query(models.User).filter(models.User.id == current_user.id).first()
+    if not auth.verify_password(old_password, user.password_hash):
+        raise HTTPException(status_code=400, detail="Mật khẩu cũ không đúng")
+    user.password_hash = auth.hash_password(new_password)
+    db.commit()
+    return {"msg": "Đổi mật khẩu thành công"}
+
 
 # app/routers/schedules.py
 @router.get("/lich-tham-phan")

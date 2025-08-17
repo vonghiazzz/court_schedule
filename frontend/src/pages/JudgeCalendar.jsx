@@ -11,8 +11,6 @@ const WEEKDAYS = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
 const MONTHS = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"];
 const JUROR = Array.from({ length: 60 }, (_, i) => `Người số ${i + 1}`);
 
-
-
 export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }) {
     const navigate = useNavigate();
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -29,6 +27,40 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
     const [startTime, setStartTime] = useState("");
     const [searchJudgeTerm, setSearchJudgeTerm] = useState("");
 
+    const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+    const [oldPassword, setOldPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+
+    // Hàm mở modal đổi mật khẩu
+    const handleChangePassword = () => {
+        setIsChangePasswordOpen(true);
+        setOldPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+    };
+
+    // Hàm gửi đổi mật khẩu
+    const submitChangePassword = async () => {
+        if (!oldPassword || !newPassword || !confirmPassword) {
+            toast.warning("Vui lòng nhập đủ thông tin!");
+            return;
+        }
+        if (newPassword !== confirmPassword) {
+            toast.warning("Mật khẩu mới không khớp!");
+            return;
+        }
+        try {
+            await api.post("/change-password", {
+                old_password: oldPassword,
+                new_password: newPassword
+            });
+            toast.success("Đổi mật khẩu thành công!");
+            setIsChangePasswordOpen(false);
+        } catch (err) {
+            toast.warning(err.response?.data?.detail || "Đổi mật khẩu thất bại!");
+        }
+    };
 
     // Hàm xuất Excel cho danh sách lịch xét xử từng thẩm phán
     const handleDownloadJudgeStats = () => {
@@ -364,6 +396,11 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
             <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", marginBottom: "10px" }}>
                 <span style={{ marginRight: "10px" }}>👤 Xin chào, <strong>{judgeName?.toUpperCase()}</strong></span>
                 <button
+                    onClick={handleChangePassword}
+                    style={{ backgroundColor: "#2196f3", color: "white", border: "none", padding: "6px 12px", borderRadius: "4px", cursor: "pointer", marginRight: "8px" }}>
+                    Đổi mật khẩu
+                </button>
+                <button
                     onClick={handleLogout}
                     style={{ backgroundColor: "#f44336", color: "white", border: "none", padding: "6px 12px", borderRadius: "4px", cursor: "pointer" }}>
                     Đăng xuất
@@ -437,6 +474,58 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
                     );
                 })}
             </div>
+
+             {/* Modal đổi mật khẩu */}
+            {isChangePasswordOpen && (
+                <div style={{
+                    position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+                    backgroundColor: "rgba(0,0,0,0.3)", display: "flex",
+                    justifyContent: "center", alignItems: "center", zIndex: 9999
+                }}>
+                    <div style={{
+                        background: "white", padding: "24px", borderRadius: "8px",
+                        minWidth: "320px", boxShadow: "0 2px 8px rgba(0,0,0,0.2)"
+                    }}>
+                        <h3 style={{ marginBottom: "16px" }}>Đổi mật khẩu</h3>
+                        <div style={{ marginBottom: "10px" }}>
+                            <label>Mật khẩu cũ:</label>
+                            <input
+                                type="password"
+                                value={oldPassword}
+                                onChange={e => setOldPassword(e.target.value)}
+                                style={{ width: "100%", padding: "6px", marginTop: "4px" }}
+                            />
+                        </div>
+                        <div style={{ marginBottom: "10px" }}>
+                            <label>Mật khẩu mới:</label>
+                            <input
+                                type="password"
+                                value={newPassword}
+                                onChange={e => setNewPassword(e.target.value)}
+                                style={{ width: "100%", padding: "6px", marginTop: "4px" }}
+                            />
+                        </div>
+                        <div style={{ marginBottom: "10px" }}>
+                            <label>Xác nhận mật khẩu mới:</label>
+                            <input
+                                type="password"
+                                value={confirmPassword}
+                                onChange={e => setConfirmPassword(e.target.value)}
+                                style={{ width: "100%", padding: "6px", marginTop: "4px" }}
+                            />
+                        </div>
+                        <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "16px" }}>
+                            <button onClick={submitChangePassword} style={{ backgroundColor: "#2196f3", color: "white", border: "none", padding: "6px 12px", borderRadius: "4px" }}>
+                                Đổi mật khẩu
+                            </button>
+                            <button onClick={() => setIsChangePasswordOpen(false)} style={{ backgroundColor: "#ccc", border: "none", padding: "6px 12px", borderRadius: "4px" }}>
+                                Hủy
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
 
             {/* Modal */}
             {isModalOpen && (
