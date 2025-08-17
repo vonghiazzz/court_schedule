@@ -4,6 +4,7 @@ from app.database import engine, SessionLocal
 from app import models
 from app.routers import users, schedule
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 
 
 app = FastAPI()
@@ -11,17 +12,16 @@ app = FastAPI()
 # Tạo bảng trong DB nếu chưa có
 models.Base.metadata.create_all(bind=engine)
 
-# XÓA dữ liệu schedules khi khởi động server
-@app.on_event("startup")
+# API clear dữ liệu bảng schedules
+@app.delete("/clear-schedules")
 def clear_schedules():
     db = SessionLocal()
     try:
-        db.execute("DELETE FROM schedules;")
+        db.execute(text("DELETE FROM schedules;"))
         db.commit()
-        print("✅ All schedules deleted on startup")
+        return {"message": "✅ All schedules cleared"}
     finally:
         db.close()
-
 
 app.include_router(users.router)
 app.include_router(schedule.router)
