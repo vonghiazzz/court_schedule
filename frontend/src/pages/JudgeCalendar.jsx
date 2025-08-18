@@ -6,10 +6,10 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
 const ROOMS = ["Hội trường 1", "Hội trường 2", "Hội trường 3", "Hội trường 4", "Hội trường 5", "Hội trường 6", "Hội trường 7", "Hội trường 8", "Hội trường 9", "Hội trường 10"];
-const SHIFTS = ["Sáng", "Chiều"];
+const SHIFTS = ["Sáng", "Chiều","Cả ngày"];
 const WEEKDAYS = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
 const MONTHS = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"];
-const JUROR = Array.from({ length: 60 }, (_, i) => `Người số ${i + 1}`);
+const JUROR = Array.from({ length: 60 }, (_, i) => `Hội thẩm số ${i + 1}`);
 
 export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }) {
     const navigate = useNavigate();
@@ -256,7 +256,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
     useEffect(() => {
         const interval = setInterval(() => {
             fetchSchedule();
-        }, 5000); // 5 giây gọi lại API 1 lần
+        }, 30000); // 30 giây gọi lại API 1 lần
 
         return () => clearInterval(interval);
     }, []);
@@ -345,13 +345,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
     const isToday = (day) => {
         return today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
     };
-
-    const changeMonth = (direction) => {
-        const newDate = new Date(currentDate);
-        newDate.setMonth(month + (direction === "next" ? 1 : -1));
-        setCurrentDate(newDate);
-    };
-
+    
     const isPastDayOrToDay = (day) => {
         const date = new Date(year, month, day);
         const todayWithoutTime = new Date();
@@ -407,12 +401,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
                 </button>
             </div>
 
-            <div style={{ textAlign: "center", margin: "10px 0" }}>
-                <button onClick={() => changeMonth("prev")}>⬅️</button>
-                <button onClick={() => setCurrentDate(new Date())} style={{ margin: "0 10px" }}>Hôm nay</button>
-                <button onClick={() => changeMonth("next")}>➡️</button>
-            </div>
-
+           
             <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", textAlign: "center", fontWeight: "bold" }}>
                 {WEEKDAYS.map(day => <div key={day}>{day}</div>)}
             </div>
@@ -666,7 +655,9 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
                             .sort((a, b) => new Date(a.date) - new Date(b.date)) // Sắp tăng dần theo ngày
                             .map((item) => (
                                 <tr key={item.id} style={{ borderBottom: "1px solid #ccc" }}>
-                                    <td style={tdStyle}>{item.date}</td>
+                                    <td style={tdStyle}>
+                                        {new Date(item.date).toLocaleDateString("vi-VN")}
+                                    </td>
                                     <td style={tdStyle}>{item.shift}</td>
                                     <td style={tdStyle}>{item.start_time}-{item.end_time}</td>
                                     <td style={tdStyle}>{item.room}</td>

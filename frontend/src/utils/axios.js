@@ -30,7 +30,7 @@ instance.interceptors.response.use(
   error => {
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('token')
-      window.location.href = '/' // Chuyển về trang login
+      window.location.href = '/' 
     }
     return Promise.reject(error)
   }
