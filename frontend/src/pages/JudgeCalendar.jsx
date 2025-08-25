@@ -343,9 +343,12 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
     };
 
     const isToday = (day) => {
-        return today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
+        return (
+            today.getFullYear() === filterYear &&
+            today.getMonth() === filterMonth &&
+            today.getDate() === day
+        );
     };
-    
     const isPastDayOrToDay = (day) => {
         const date = new Date(filterYear, filterMonth, day);  // ✔️ dùng filterMonth, filterYear
         const todayWithoutTime = new Date();
