@@ -63,39 +63,104 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
     };
 
     // Hàm xuất Excel cho danh sách lịch xét xử từng thẩm phán
+    // const handleDownloadJudgeStats = () => {
+    //     const data = Object.entries(stats)
+    //         .filter(([name]) => name.toLowerCase().includes(searchJudgeTerm.toLowerCase()))
+    //         .map(([name, d]) => ({
+    //             "Thẩm phán": name,
+    //             "Đã hoàn thành": d.done,
+    //             "Chưa hoàn thành": d.pending,
+    //             "Tổng đăng ký": d.total
+    //         }));
+    //     const ws = XLSX.utils.json_to_sheet(data);
+    //     const wb = XLSX.utils.book_new();
+    //     XLSX.utils.book_append_sheet(wb, ws, "JudgeStats");
+    //     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    //     saveAs(new Blob([excelBuffer], { type: "application/octet-stream" }), "JudgeStats.xlsx");
+    // };
+
     const handleDownloadJudgeStats = () => {
-        const data = Object.entries(stats)
-            .filter(([name]) => name.toLowerCase().includes(searchJudgeTerm.toLowerCase()))
-            .map(([name, d]) => ({
-                "Thẩm phán": name,
-                "Đã hoàn thành": d.done,
-                "Chưa hoàn thành": d.pending,
-                "Tổng đăng ký": d.total
-            }));
-        const ws = XLSX.utils.json_to_sheet(data);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "JudgeStats");
-        const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-        saveAs(new Blob([excelBuffer], { type: "application/octet-stream" }), "JudgeStats.xlsx");
+    // Thêm số thứ tự (STT)
+    const data = Object.entries(stats)
+        .filter(([name]) => name.toLowerCase().includes(searchJudgeTerm.toLowerCase()))
+        .map(([name, d], index) => ({
+            "STT": index + 1,
+            "Thẩm phán": name,
+            "Đã hoàn thành": d.done,
+            "Chưa hoàn thành": d.pending,
+            "Tổng đăng ký": d.total
+        }));
+
+    // Tạo worksheet
+    const ws = XLSX.utils.json_to_sheet(data);
+
+    // Căn chỉnh độ rộng cột
+    const colWidths = Object.keys(data[0]).map((key) => ({
+        wch: Math.max(
+            key.length, // độ dài tiêu đề
+            ...data.map((row) => (row[key] ? row[key].toString().length : 0)) // max độ dài dữ liệu
+        ) + 2 // thêm padding cho đẹp
+    }));
+    ws['!cols'] = colWidths;
+
+    // Tạo workbook và ghi file
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "JudgeStats");
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    saveAs(new Blob([excelBuffer], { type: "application/octet-stream" }), "JudgeStats.xlsx");
     };
 
+
+    // Hàm xuất Excel cho danh sách lịch xét xử trong tháng
+    // const handleDownloadSchedule = () => {
+    //     const data = filteredSchedules.map(item => ({
+    //         "Ngày": item.date,
+    //         "Buổi": item.shift,
+    //         "Thời gian": `${item.start_time}-${item.end_time}`,
+    //         "Hội trường": item.room,
+    //         "Thẩm phán": item.user?.username,
+    //         "Hội thẩm": "",
+    //         "Ghi chú": item.note || ""
+    //     }));
+    //     const ws = XLSX.utils.json_to_sheet(data);
+    //     const wb = XLSX.utils.book_new();
+    //     XLSX.utils.book_append_sheet(wb, ws, "Schedule");
+    //     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    //     saveAs(new Blob([excelBuffer], { type: "application/octet-stream" }), "Schedule.xlsx");
+    // };
     // Hàm xuất Excel cho danh sách lịch xét xử trong tháng
     const handleDownloadSchedule = () => {
-        const data = filteredSchedules.map(item => ({
-            "Ngày": item.date,
-            "Buổi": item.shift,
-            "Thời gian": `${item.start_time}-${item.end_time}`,
+        // Thêm số thứ tự (STT)
+        const data = filteredSchedules.map((item, index) => ({
+            "STT": index + 1,            
+            "Thời gian xét xử": `${item.start_time}-${item.end_time}` + item.date,
+            "Đương sự": "",
+            "Quan hệ tranh chấp": "",
             "Hội trường": item.room,
-            "Thẩm phán": item.user?.username,
-            "Hội thẩm": Array.isArray(item.jurors) ? item.jurors.join(", ") : item.jurors,
+            "Hội thẩm nhân dân": "",
+            "Thẩm phán (Chủ tọa)": item.user?.username,            
             "Ghi chú": item.note || ""
         }));
+
+        // Tạo worksheet
         const ws = XLSX.utils.json_to_sheet(data);
+
+        // Căn chỉnh độ rộng cột tự động
+        const colWidths = Object.keys(data[0]).map((key) => ({
+            wch: Math.max(
+                key.length, // độ dài tiêu đề
+                ...data.map((row) => (row[key] ? row[key].toString().length : 0)) // độ dài max trong cột
+            ) + 2 // thêm padding
+        }));
+        ws['!cols'] = colWidths;
+
+        // Tạo workbook và ghi file
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Schedule");
         const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
         saveAs(new Blob([excelBuffer], { type: "application/octet-stream" }), "Schedule.xlsx");
-    };
+        };
+
 
 
     // Tạo mảng năm (vd 2020-2030) để chọn
