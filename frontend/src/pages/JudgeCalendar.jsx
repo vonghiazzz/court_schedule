@@ -65,7 +65,12 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
             toast.warning(err.response?.data?.detail || "Đổi mật khẩu thất bại!");
         }
     };
-
+// Hàm format ngày: yyyy-mm-dd -> dd-mm-yyyy
+    const formatDateForExcel = (dateStr) => {
+        if (!dateStr) return "";
+        const [year, month, day] = dateStr.split("-");
+        return `${day}-${month}-${year}`;
+    };
     const handleDownloadJudgeStats = () => {
     // Thêm số thứ tự (STT)
     const data = Object.entries(stats)
@@ -107,7 +112,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
         // Thêm số thứ tự (STT)
         const data = filteredSchedules.map((item, index) => ({
             "STT": index + 1,            
-            "Thời gian xét xử": `${formatDate(item.date)}${String.fromCharCode(10)}${formatTime(item.start_time)}-${formatTime(item.end_time)}`,
+            "Thời gian xét xử": `${formatDateForExcel(item.date)}\n${formatTime(item.start_time)}-${formatTime(item.end_time)}`,
             "Đương sự": "",
             "Quan hệ tranh chấp": "",
             "Hội trường": item.room,
