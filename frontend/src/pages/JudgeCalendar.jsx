@@ -39,6 +39,10 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
         setNewPassword("");
         setConfirmPassword("");
     };
+    
+    const formatDate = (d) => {
+        return `${filterYear}-${String(filterMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+    };
 
     // Hàm gửi đổi mật khẩu
     const submitChangePassword = async () => {
@@ -61,23 +65,6 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
             toast.warning(err.response?.data?.detail || "Đổi mật khẩu thất bại!");
         }
     };
-
-    // Hàm xuất Excel cho danh sách lịch xét xử từng thẩm phán
-    // const handleDownloadJudgeStats = () => {
-    //     const data = Object.entries(stats)
-    //         .filter(([name]) => name.toLowerCase().includes(searchJudgeTerm.toLowerCase()))
-    //         .map(([name, d]) => ({
-    //             "Thẩm phán": name,
-    //             "Đã hoàn thành": d.done,
-    //             "Chưa hoàn thành": d.pending,
-    //             "Tổng đăng ký": d.total
-    //         }));
-    //     const ws = XLSX.utils.json_to_sheet(data);
-    //     const wb = XLSX.utils.book_new();
-    //     XLSX.utils.book_append_sheet(wb, ws, "JudgeStats");
-    //     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    //     saveAs(new Blob([excelBuffer], { type: "application/octet-stream" }), "JudgeStats.xlsx");
-    // };
 
     const handleDownloadJudgeStats = () => {
     // Thêm số thứ tự (STT)
@@ -110,24 +97,6 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
     saveAs(new Blob([excelBuffer], { type: "application/octet-stream" }), "JudgeStats.xlsx");
     };
 
-
-    // Hàm xuất Excel cho danh sách lịch xét xử trong tháng
-    // const handleDownloadSchedule = () => {
-    //     const data = filteredSchedules.map(item => ({
-    //         "Ngày": item.date,
-    //         "Buổi": item.shift,
-    //         "Thời gian": `${item.start_time}-${item.end_time}`,
-    //         "Hội trường": item.room,
-    //         "Thẩm phán": item.user?.username,
-    //         "Hội thẩm": "",
-    //         "Ghi chú": item.note || ""
-    //     }));
-    //     const ws = XLSX.utils.json_to_sheet(data);
-    //     const wb = XLSX.utils.book_new();
-    //     XLSX.utils.book_append_sheet(wb, ws, "Schedule");
-    //     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    //     saveAs(new Blob([excelBuffer], { type: "application/octet-stream" }), "Schedule.xlsx");
-    // };
     const formatTime = (timeStr) => {
         if (!timeStr) return "";
         return timeStr.slice(0, 5); // lấy HH:mm, bỏ giây
@@ -138,7 +107,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
         // Thêm số thứ tự (STT)
         const data = filteredSchedules.map((item, index) => ({
             "STT": index + 1,            
-            "Thời gian xét xử": `${formatDate(item.date)}\n${formatTime(item.start_time)}-${formatTime(item.end_time)}`,
+            "Thời gian xét xử": `${formatDate(item.date)}${String.fromCharCode(10)}${formatTime(item.start_time)}-${formatTime(item.end_time)}`,
             "Đương sự": "",
             "Quan hệ tranh chấp": "",
             "Hội trường": item.room,
@@ -214,9 +183,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
     for (let i = 0; i < firstDayWeekday; i++) calendarDays.push(null);
     for (let d = 1; d <= daysInMonth; d++) calendarDays.push(d);
 
-    const formatDate = (d) => {
-        return `${filterYear}-${String(filterMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-    };
+  
 
     // Lọc lịch trình chỉ trong tháng hiện tại    
     const scheduleInMonth = schedule.filter(item => {
