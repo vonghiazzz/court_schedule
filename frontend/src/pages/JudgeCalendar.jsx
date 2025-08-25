@@ -138,7 +138,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
         // Thêm số thứ tự (STT)
         const data = filteredSchedules.map((item, index) => ({
             "STT": index + 1,            
-            "Thời gian xét xử": `${item.date}\n${formatTime(item.start_time)}-${formatTime(item.end_time)}`,
+            "Thời gian xét xử": `${formatDate(item.date)}\n${formatTime(item.start_time)}-${formatTime(item.end_time)}`,
             "Đương sự": "",
             "Quan hệ tranh chấp": "",
             "Hội trường": item.room,
@@ -150,12 +150,25 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
         // Tạo worksheet
         const ws = XLSX.utils.json_to_sheet(data);
 
+        // Căn chỉnh wrap text cho cột có xuống dòng
+        Object.keys(ws).forEach((cell) => {
+            if (cell[0] === "!") return;
+            if (!ws[cell].s) ws[cell].s = {};
+            if (typeof ws[cell].v === "string" && ws[cell].v.includes("\n")) {
+                ws[cell].s.alignment = {
+                    wrapText: true,
+                    vertical: "center",
+                    horizontal: "center"
+                };
+            }
+        });
+
         // Căn chỉnh độ rộng cột tự động
         const colWidths = Object.keys(data[0]).map((key) => ({
             wch: Math.max(
                 key.length, // độ dài tiêu đề
-                ...data.map((row) => (row[key] ? row[key].toString().length : 0)) // độ dài max trong cột
-            ) + 2 // thêm padding
+                ...data.map((row) => (row[key] ? row[key].toString().length : 0))
+            ) + 2
         }));
         ws['!cols'] = colWidths;
 
@@ -164,8 +177,8 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
         XLSX.utils.book_append_sheet(wb, ws, "Schedule");
         const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
         saveAs(new Blob([excelBuffer], { type: "application/octet-stream" }), "Schedule.xlsx");
-        };
-
+    };
+    
 
 
     // Tạo mảng năm (vd 2020-2030) để chọn
