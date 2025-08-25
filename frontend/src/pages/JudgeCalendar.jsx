@@ -112,7 +112,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
         // Thêm số thứ tự (STT)
         const data = filteredSchedules.map((item, index) => ({
             "STT": index + 1,            
-            "Thời gian xét xử": `${formatDateForExcel(item.date)}\n${formatTime(item.start_time)}-${formatTime(item.end_time)}`,
+            "Thời gian xét xử": `${formatDateForExcel(item.date)} | ${formatTime(item.start_time)}-${formatTime(item.end_time)}`,
             "Đương sự": "",
             "Quan hệ tranh chấp": "",
             "Hội trường": item.room,
@@ -124,17 +124,12 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
         // Tạo worksheet
         const ws = XLSX.utils.json_to_sheet(data);
 
-        // Căn chỉnh wrap text cho cột có xuống dòng
+        // Căn giữa tất cả cell (nếu muốn đồng bộ)
         Object.keys(ws).forEach((cell) => {
             if (cell[0] === "!") return;
-            if (!ws[cell].s) ws[cell].s = {};
-            if (typeof ws[cell].v === "string" && ws[cell].v.includes("\n")) {
-                ws[cell].s.alignment = {
-                    wrapText: true,
-                    vertical: "center",
-                    horizontal: "center"
-                };
-            }
+            ws[cell].s = {
+                alignment: { vertical: "center", horizontal: "center" }
+            };
         });
 
         // Căn chỉnh độ rộng cột tự động
