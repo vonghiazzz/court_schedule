@@ -128,12 +128,17 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
     //     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     //     saveAs(new Blob([excelBuffer], { type: "application/octet-stream" }), "Schedule.xlsx");
     // };
+    const formatTime = (timeStr) => {
+        if (!timeStr) return "";
+        return timeStr.slice(0, 5); // lấy HH:mm, bỏ giây
+    };
+
     // Hàm xuất Excel cho danh sách lịch xét xử trong tháng
     const handleDownloadSchedule = () => {
         // Thêm số thứ tự (STT)
         const data = filteredSchedules.map((item, index) => ({
             "STT": index + 1,            
-            "Thời gian xét xử": `${item.start_time}-${item.end_time}` + item.date,
+            "Thời gian xét xử": `${item.date}\n${formatTime(item.start_time)}-${formatTime(item.end_time)}`,
             "Đương sự": "",
             "Quan hệ tranh chấp": "",
             "Hội trường": item.room,
