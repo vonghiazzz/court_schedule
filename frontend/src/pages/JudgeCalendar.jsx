@@ -132,7 +132,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
     for (let d = 1; d <= daysInMonth; d++) calendarDays.push(d);
 
     const formatDate = (d) => {
-        return `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+        return `${filterYear}-${String(filterMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
     };
 
     // Lọc lịch trình chỉ trong tháng hiện tại    
@@ -347,7 +347,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
     };
     
     const isPastDayOrToDay = (day) => {
-        const date = new Date(year, month, day);
+        const date = new Date(filterYear, filterMonth, day);  // ✔️ dùng filterMonth, filterYear
         const todayWithoutTime = new Date();
         return date < todayWithoutTime;
     };
