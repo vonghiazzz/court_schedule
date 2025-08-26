@@ -68,6 +68,8 @@ def create_schedule(
         shift=schedule.shift,
         jurors=[j.value for j in schedule.jurors], 
         note=schedule.note,
+        dispute_relationship=schedule.dispute_relationship,
+        litigant=schedule.litigant,
         start_time=schedule.start_time,
         end_time=schedule.end_time,
         user_id=current_user.id

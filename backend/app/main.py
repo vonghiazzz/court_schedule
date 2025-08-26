@@ -23,6 +23,18 @@ def clear_schedules():
     finally:
         db.close()
 
+# API thêm cột mới
+@app.post("/add-columns")
+def add_columns():
+    db = SessionLocal()
+    try:
+        db.execute(text("ALTER TABLE schedules ADD COLUMN IF NOT EXISTS dispute_relationship VARCHAR(255);"))
+        db.execute(text("ALTER TABLE schedules ADD COLUMN IF NOT EXISTS litigant VARCHAR(255);"))
+        db.commit()
+        return {"message": "✅ Columns dispute_relationship & litigant added"}
+    finally:
+        db.close()
+        
 app.include_router(users.router)
 app.include_router(schedule.router)
 

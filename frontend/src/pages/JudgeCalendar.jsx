@@ -23,6 +23,9 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
     const [selectedJurors, setSelectedJurors] = useState([]);
     const [selectedShift, setSelectedShift] = useState("");
     const [note, setNote] = useState("");
+    const [dispute_relationship, setDispute_relationship] = useState("");
+    const [litigant, setLitigant] = useState("");
+
     const [endTime, setEndTime] = useState("");
     const [startTime, setStartTime] = useState("");
     const [searchJudgeTerm, setSearchJudgeTerm] = useState("");
@@ -113,10 +116,10 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
         const data = filteredSchedules.map((item, index) => ({
             "STT": index + 1,            
             "Thời gian xét xử": `${formatDateForExcel(item.date)} | ${formatTime(item.start_time)}-${formatTime(item.end_time)}`,
-            "Đương sự": "",
-            "Quan hệ tranh chấp": "",
+            "Đương sự": item.litigant,
+            "Quan hệ tranh chấp": item.dispute_relationship,
             "Hội trường": item.room,
-            "Hội thẩm nhân dân": "",
+            "Hội thẩm nhân dân": Array.isArray(item.jurors) ? item.jurors.join(", ") : item.jurors,
             "Thẩm phán (Chủ tọa)": item.user?.username,            
             "Ghi chú": item.note || ""
         }));
@@ -128,7 +131,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
         Object.keys(ws).forEach((cell) => {
             if (cell[0] === "!") return;
             ws[cell].s = {
-                alignment: { vertical: "center", horizontal: "center" }
+                alignment: { vertical: "center", horizontal: "center" , wrapText: true}
             };
         });
 
@@ -238,6 +241,8 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
             removeVietnameseTones(item.room?.toLowerCase() || "").includes(keyword) ||
             removeVietnameseTones(item.shift?.toLowerCase() || "").includes(keyword) ||
             removeVietnameseTones(item.note?.toLowerCase() || "").includes(keyword) ||
+            removeVietnameseTones(item.dispute_relationship?.toLowerCase() || "").includes(keyword) ||
+            removeVietnameseTones(item.litigant?.toLowerCase() || "").includes(keyword) ||
             removeVietnameseTones(item.start_time?.toLowerCase() || "").includes(keyword) ||
             removeVietnameseTones(item.end_time?.toLowerCase() || "").includes(keyword) ||
             removeVietnameseTones(item.user?.username?.toLowerCase() || "").includes(keyword) ||
@@ -254,31 +259,15 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
         setSelectedRoom("");
         setSelectedShift("");
         setNote("");
+        setDispute_relationship("");
+        setLitigant("");
         setEndTime("");
         setStartTime("");
         setSelectedJurors("");
         setIsModalOpen(true);
     };
 
-    // // Load lịch xét xử từ API
-    // useEffect(() => {
-    //     if (sessionStorage.getItem("justLoggedIn") === "true") {
-    //         toast.success("Đăng nhập thành công!");
-    //         sessionStorage.removeItem("justLoggedIn");
-    //     }
-    //     const fetchSchedule = async () => {
-    //         try {
-    //             const res = await api.get("/schedule");
-    //             setSchedule(res.data);
-    //         } catch (err) {
-    //             console.error("Lỗi tải lịch:", err);
-    //         } finally {
-    //             setLoading(false);
-    //         }
-    //     };
-    //     fetchSchedule();
-    // }, [currentDate]);
-    // ...existing code...
+    // Load schedule
     const fetchSchedule = async () => {
         try {
             const res = await api.get("/schedule");
@@ -339,6 +328,8 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
                 shift: selectedShift,
                 jurors: selectedJurors,
                 note: note,
+                litigant: litigant,
+                dispute_relationship: dispute_relationship,
                 start_time: startTime,
                 end_time: endTime,
             });
@@ -347,6 +338,8 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
             setIsModalOpen(false);
             setSelectedJurors("");
             setNote("");
+            setDispute_relationship("");
+            setLitigant("");
             setStartTime("");
             setEndTime("");
             setSelectedRoom("");
@@ -631,6 +624,22 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
                         </div>
 
                         <div className="form-group">
+                            <label>Đương sự:</label>
+                            <textarea
+                                className="form-control"
+                                value={litigant}
+                                onChange={(e) => setLitigant(e.target.value)}
+                            />
+
+                        </div><div className="form-group">
+                            <label>Quan hệ tranh chấp:</label>
+                            <textarea
+                                className="form-control"
+                                value={dispute_relationship}
+                                onChange={(e) => setDispute_relationship(e.target.value)}
+                            />
+                        </div>
+                        <div className="form-group">
                             <label>Ghi chú:</label>
                             <textarea
                                 className="form-control"
@@ -698,6 +707,8 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
                             <th style={thStyle}>Buổi</th>
                             <th style={thStyle}>Thời gian</th>
                             <th style={thStyle}>Hội trường</th>
+                            <th style={thStyle}>Đương sự</th>
+                            <th style={thStyle}>Quan hệ tranh chấp</th>                            
                             <th style={thStyle}>Thẩm phán</th>
                             <th style={thStyle}>Hội thẩm</th>
                             <th style={thStyle}>Ghi chú</th>
@@ -714,6 +725,8 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
                                     <td style={tdStyle}>{item.shift}</td>
                                     <td style={tdStyle}>{item.start_time}-{item.end_time}</td>
                                     <td style={tdStyle}>{item.room}</td>
+                                    <td style={tdStyle}>{item.litigant}</td>
+                                    <td style={tdStyle}>{item.dispute_relationship}</td>                                    
                                     <td style={tdStyle}>{item.user?.username}</td>
                                     <td style={tdStyle}>
                                         {Array.isArray(item.jurors) ? item.jurors.join(", ") : item.jurors}

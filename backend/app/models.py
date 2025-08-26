@@ -19,6 +19,8 @@ class Schedule(Base):
     date = Column(String,nullable=False)
     room = Column(String, nullable=False)  
     shift = Column(String, nullable=False) 
+    dispute_relationship = Column(String, nullable=False) 
+    litigant =  Column(String, nullable=False) 
     jurors = Column(ARRAY(String), nullable=False) 
     start_time = Column(Time, nullable=False) 
     end_time = Column(Time, nullable=False)   

@@ -103,7 +103,10 @@ class ScheduleCreate(BaseModel):
     jurors: List[JurorEnum]     
     start_time: Optional[time] = None
     end_time: Optional[time] = None
+    dispute_relationship: Optional[str] = None
+    litigant: Optional[str] = None
     note: Optional[str] = None
+
 
 class ScheduleOut(BaseModel):
     id: int
@@ -113,6 +116,8 @@ class ScheduleOut(BaseModel):
     jurors: List[str] 
     start_time: Optional[time] = None
     end_time: Optional[time] = None
+    dispute_relationship: Optional[str] = None
+    litigant: Optional[str] = None
     note: Optional[str] = None
     user: UserOut                
 
