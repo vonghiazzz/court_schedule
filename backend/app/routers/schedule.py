@@ -99,3 +99,31 @@ def delete_schedule(
     db.delete(schedule)
     db.commit()
     return {"message": "Đã xóa thành công"}
+
+@router.put("/{schedule_id}", response_model=schemas.ScheduleOut)
+def update_schedule(
+    schedule_id: int,
+    schedule: schemas.ScheduleCreate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    db_schedule = db.query(models.Schedule).filter(models.Schedule.id == schedule_id).first()
+    if not db_schedule:
+        raise HTTPException(status_code=404, detail="Không tìm thấy lịch")
+    if db_schedule.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Bạn không có quyền sửa lịch này")
+
+    # Cập nhật các trường
+    db_schedule.date = schedule.date
+    db_schedule.room = schedule.room
+    db_schedule.shift = schedule.shift
+    db_schedule.jurors = [j.value for j in schedule.jurors]
+    db_schedule.note = schedule.note
+    db_schedule.dispute_relationship = schedule.dispute_relationship
+    db_schedule.litigant = schedule.litigant
+    db_schedule.start_time = schedule.start_time
+    db_schedule.end_time = schedule.end_time
+
+    db.commit()
+    db.refresh(db_schedule)
+    return db_schedule

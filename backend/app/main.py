@@ -34,7 +34,6 @@ def add_columns():
         return {"message": "✅ Columns dispute_relationship & litigant added"}
     finally:
         db.close()
-        
 app.include_router(users.router)
 app.include_router(schedule.router)
 

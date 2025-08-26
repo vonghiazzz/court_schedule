@@ -25,6 +25,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
     const [note, setNote] = useState("");
     const [dispute_relationship, setDispute_relationship] = useState("");
     const [litigant, setLitigant] = useState("");
+    const [editScheduleId, setEditScheduleId] = useState(null);
 
     const [endTime, setEndTime] = useState("");
     const [startTime, setStartTime] = useState("");
@@ -267,6 +268,20 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
         setIsModalOpen(true);
     };
 
+    const handleEdit = (item) => {
+    setEditScheduleId(item.id);
+    setSelectedDate(item.date);
+    setSelectedRoom(item.room);
+    setSelectedShift(item.shift);
+    setSelectedJurors(item.jurors);
+    setNote(item.note || "");
+    setDispute_relationship(item.dispute_relationship || "");
+    setLitigant(item.litigant || "");
+    setStartTime(item.start_time || "");
+    setEndTime(item.end_time || "");
+    setIsModalOpen(true);
+};
+
     // Load schedule
     const fetchSchedule = async () => {
         try {
@@ -301,6 +316,63 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
     }, []);
 
     // Gửi đăng ký mới
+    // const handleRegister = async () => {
+    //     if (!selectedRoom || !selectedShift || !selectedJurors || !selectedDate || !startTime || !endTime) {
+    //         toast.warning("Vui lòng điền đầy đủ hội trường, buổi và hội thẩm.");
+    //         return;
+    //     }
+
+    //     const count = schedule.filter(
+    //         s => s.date === selectedDate && s.room === selectedRoom && s.shift === selectedShift
+    //     ).length;
+
+    //     if (count >= 2) {
+    //         toast.warning("Mỗi buổi tại một hội trường chỉ được đăng ký tối đa 2 vụ xử!");
+    //         return;
+    //     }
+
+    //     if (selectedJurors.length < 2) {
+    //         toast.warning("Vui lòng chọn ít nhất 2 hội thẩm.");
+    //         return;
+    //     } 
+        
+    //     try {
+    //         const res = await api.post("/schedule/", {
+    //             date: selectedDate,
+    //             room: selectedRoom,
+    //             shift: selectedShift,
+    //             jurors: selectedJurors,
+    //             note: note,
+    //             litigant: litigant,
+    //             dispute_relationship: dispute_relationship,
+    //             start_time: startTime,
+    //             end_time: endTime,
+    //         });
+
+    //         setSchedule(prev => [...prev, res.data]);
+    //         setIsModalOpen(false);
+    //         setSelectedJurors("");
+    //         setNote("");
+    //         setDispute_relationship("");
+    //         setLitigant("");
+    //         setStartTime("");
+    //         setEndTime("");
+    //         setSelectedRoom("");
+    //         setSelectedShift("");
+    //         setSelectedDate("");
+    //         toast.success("Đăng ký lịch xét xử thành công!");
+    //         await fetchSchedule(); 
+
+    //     } catch (err) {
+    //         toast.warning("Lỗi khi đăng ký phiên xử!");
+    //         if (err.response?.status === 400) {
+    //             toast.warning(err.response.data.detail);
+    //         }
+    //         console.error(err);
+    //     }
+    // };
+
+    // ...existing code...
     const handleRegister = async () => {
         if (!selectedRoom || !selectedShift || !selectedJurors || !selectedDate || !startTime || !endTime) {
             toast.warning("Vui lòng điền đầy đủ hội trường, buổi và hội thẩm.");
@@ -311,7 +383,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
             s => s.date === selectedDate && s.room === selectedRoom && s.shift === selectedShift
         ).length;
 
-        if (count >= 2) {
+        if (!editScheduleId && count >= 2) {
             toast.warning("Mỗi buổi tại một hội trường chỉ được đăng ký tối đa 2 vụ xử!");
             return;
         }
@@ -319,23 +391,32 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
         if (selectedJurors.length < 2) {
             toast.warning("Vui lòng chọn ít nhất 2 hội thẩm.");
             return;
-        } 
-        
-        try {
-            const res = await api.post("/schedule/", {
-                date: selectedDate,
-                room: selectedRoom,
-                shift: selectedShift,
-                jurors: selectedJurors,
-                note: note,
-                litigant: litigant,
-                dispute_relationship: dispute_relationship,
-                start_time: startTime,
-                end_time: endTime,
-            });
+        }
 
-            setSchedule(prev => [...prev, res.data]);
+        const payload = {
+            date: selectedDate,
+            room: selectedRoom,
+            shift: selectedShift,
+            jurors: selectedJurors,
+            note: note,
+            litigant: litigant,
+            dispute_relationship: dispute_relationship,
+            start_time: startTime,
+            end_time: endTime,
+        };
+
+        try {
+            let res;
+            if (editScheduleId) {
+                res = await api.put(`/schedule/${editScheduleId}`, payload);
+                toast.success("Cập nhật lịch xét xử thành công!");
+            } else {
+                res = await api.post("/schedule/", payload);
+                toast.success("Đăng ký lịch xét xử thành công!");
+            }
+
             setIsModalOpen(false);
+            setEditScheduleId(null);
             setSelectedJurors("");
             setNote("");
             setDispute_relationship("");
@@ -345,17 +426,17 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
             setSelectedRoom("");
             setSelectedShift("");
             setSelectedDate("");
-            toast.success("Đăng ký lịch xét xử thành công!");
-            await fetchSchedule(); 
+            await fetchSchedule();
 
         } catch (err) {
-            toast.warning("Lỗi khi đăng ký phiên xử!");
+            toast.warning("Lỗi khi đăng ký/cập nhật phiên xử!");
             if (err.response?.status === 400) {
                 toast.warning(err.response.data.detail);
             }
             console.error(err);
         }
     };
+    // ...existing code...
 
     // 👉 Xoá lịch
     const handleDelete = async (item) => {
@@ -491,7 +572,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
                                 }}>
                                     <span>{ev.room} - {ev.shift}</span><br />
                                     <span style={{ fontStyle: "italic" }}>{ev.user?.username || "?"}</span>
-                                    {ev.user?.username === judgeName && isFuture && (
+                                    {/* {ev.user?.username === judgeName && isFuture && (
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
@@ -501,7 +582,29 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
                                         >
                                             ❌
                                         </button>
-                                    )}
+                                    )} */}
+                                    {ev.user?.username === judgeName && isFuture && (
+                                    <>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleEdit(ev); // Thêm hàm này
+                                            }}
+                                            style={{ float: "right", border: "none", background: "none", color: "blue" }}
+                                        >
+                                            ✏️
+                                        </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDelete(ev);
+                                            }}
+                                            style={{ float: "right", border: "none", background: "none", color: "red" }}
+                                        >
+                                            ❌
+                                        </button>
+                                    </>
+                                )}
                                 </div>
                             );
                         })}
