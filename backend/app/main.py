@@ -13,15 +13,15 @@ app = FastAPI()
 models.Base.metadata.create_all(bind=engine)
 
 # API clear dữ liệu bảng schedules
-# @app.delete("/clear-schedules")
-# def clear_schedules():
-#     db = SessionLocal()
-#     try:
-#         db.execute(text("DELETE FROM schedules;"))
-#         db.commit()
-#         return {"message": "✅ All schedules cleared"}
-#     finally:
-#         db.close()
+@app.delete("/clear-schedules")
+def clear_schedules():
+    db = SessionLocal()
+    try:
+        db.execute(text("DELETE FROM schedules;"))
+        db.commit()
+        return {"message": "✅ All schedules cleared"}
+    finally:
+        db.close()
 
 app.include_router(users.router)
 app.include_router(schedule.router)
