@@ -112,45 +112,89 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
     };
 
     // Hàm xuất Excel cho danh sách lịch xét xử trong tháng
+    // const handleDownloadSchedule = () => {
+    //     // Thêm số thứ tự (STT)
+    //     const data = filteredSchedules.map((item, index) => ({
+    //         "STT": index + 1,            
+    //         "Thời gian xét xử": `${formatDateForExcel(item.date)} | ${formatTime(item.start_time)}-${formatTime(item.end_time)}`,
+    //         "Đương sự": item.litigant,
+    //         "Quan hệ tranh chấp": item.dispute_relationship,
+    //         "Hội trường": item.room,
+    //         "Hội thẩm nhân dân": Array.isArray(item.jurors) ? item.jurors.join(", ") : item.jurors,
+    //         "Thẩm phán (Chủ tọa)": item.user?.username,            
+    //         "Ghi chú": item.note || ""
+    //     }));
+
+    //     // Tạo worksheet
+    //     const ws = XLSX.utils.json_to_sheet(data);
+
+    //     // Căn giữa tất cả cell (nếu muốn đồng bộ)
+    //     Object.keys(ws).forEach((cell) => {
+    //         if (cell[0] === "!") return;
+    //         ws[cell].s = {
+    //             alignment: { vertical: "center", horizontal: "center" , wrapText: true}
+    //         };
+    //     });
+
+    //     // Căn chỉnh độ rộng cột tự động
+    //     const colWidths = Object.keys(data[0]).map((key) => ({
+    //         wch: Math.max(
+    //             key.length, // độ dài tiêu đề
+    //             ...data.map((row) => (row[key] ? row[key].toString().length : 0))
+    //         ) + 2
+    //     }));
+    //     ws['!cols'] = colWidths;
+
+    //     // Tạo workbook và ghi file
+    //     const wb = XLSX.utils.book_new();
+    //     XLSX.utils.book_append_sheet(wb, ws, "Schedule");
+    //     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    //     saveAs(new Blob([excelBuffer], { type: "application/octet-stream" }), "Schedule.xlsx");
+    // };
     const handleDownloadSchedule = () => {
-        // Thêm số thứ tự (STT)
-        const data = filteredSchedules.map((item, index) => ({
-            "STT": index + 1,            
-            "Thời gian xét xử": `${formatDateForExcel(item.date)} | ${formatTime(item.start_time)}-${formatTime(item.end_time)}`,
-            "Đương sự": item.litigant,
-            "Quan hệ tranh chấp": item.dispute_relationship,
-            "Hội trường": item.room,
-            "Hội thẩm nhân dân": Array.isArray(item.jurors) ? item.jurors.join(", ") : item.jurors,
-            "Thẩm phán (Chủ tọa)": item.user?.username,            
-            "Ghi chú": item.note || ""
-        }));
+    // Sắp xếp tất cả lịch theo ngày tăng dần (quá khứ -> tương lai)
+    const sortedData = [...filteredSchedules].sort(
+        (a, b) => new Date(a.date) - new Date(b.date)
+    );
 
-        // Tạo worksheet
-        const ws = XLSX.utils.json_to_sheet(data);
+    const data = sortedData.map((item, index) => ({
+        "STT": index + 1,            
+        "Thời gian xét xử": `${formatDateForExcel(item.date)} | ${formatTime(item.start_time)}-${formatTime(item.end_time)}`,
+        "Đương sự": item.litigant,
+        "Quan hệ tranh chấp": item.dispute_relationship,
+        "Hội trường": item.room,
+        "Hội thẩm nhân dân": Array.isArray(item.jurors) ? item.jurors.join(", ") : item.jurors,
+        "Thẩm phán (Chủ tọa)": item.user?.username,            
+        "Ghi chú": item.note || ""
+    }));
 
-        // Căn giữa tất cả cell (nếu muốn đồng bộ)
-        Object.keys(ws).forEach((cell) => {
-            if (cell[0] === "!") return;
-            ws[cell].s = {
-                alignment: { vertical: "center", horizontal: "center" , wrapText: true}
-            };
-        });
+    if (data.length === 0) {
+        toast.warning("Không có lịch xét xử!");
+        return;
+    }
 
-        // Căn chỉnh độ rộng cột tự động
-        const colWidths = Object.keys(data[0]).map((key) => ({
-            wch: Math.max(
-                key.length, // độ dài tiêu đề
-                ...data.map((row) => (row[key] ? row[key].toString().length : 0))
-            ) + 2
-        }));
-        ws['!cols'] = colWidths;
+    const ws = XLSX.utils.json_to_sheet(data);
 
-        // Tạo workbook và ghi file
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Schedule");
-        const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-        saveAs(new Blob([excelBuffer], { type: "application/octet-stream" }), "Schedule.xlsx");
-    };
+    Object.keys(ws).forEach((cell) => {
+        if (cell[0] === "!") return;
+        ws[cell].s = {
+            alignment: { vertical: "center", horizontal: "center" , wrapText: true}
+        };
+    });
+
+    const colWidths = Object.keys(data[0]).map((key) => ({
+        wch: Math.max(
+            key.length,
+            ...data.map((row) => (row[key] ? row[key].toString().length : 0))
+        ) + 2
+    }));
+    ws['!cols'] = colWidths;
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Schedule");
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    saveAs(new Blob([excelBuffer], { type: "application/octet-stream" }), "Schedule.xlsx");
+};
     
 
 
@@ -314,63 +358,6 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
 
         return () => clearInterval(interval);
     }, []);
-
-    // Gửi đăng ký mới
-    // const handleRegister = async () => {
-    //     if (!selectedRoom || !selectedShift || !selectedJurors || !selectedDate || !startTime || !endTime) {
-    //         toast.warning("Vui lòng điền đầy đủ hội trường, buổi và hội thẩm.");
-    //         return;
-    //     }
-
-    //     const count = schedule.filter(
-    //         s => s.date === selectedDate && s.room === selectedRoom && s.shift === selectedShift
-    //     ).length;
-
-    //     if (count >= 2) {
-    //         toast.warning("Mỗi buổi tại một hội trường chỉ được đăng ký tối đa 2 vụ xử!");
-    //         return;
-    //     }
-
-    //     if (selectedJurors.length < 2) {
-    //         toast.warning("Vui lòng chọn ít nhất 2 hội thẩm.");
-    //         return;
-    //     } 
-        
-    //     try {
-    //         const res = await api.post("/schedule/", {
-    //             date: selectedDate,
-    //             room: selectedRoom,
-    //             shift: selectedShift,
-    //             jurors: selectedJurors,
-    //             note: note,
-    //             litigant: litigant,
-    //             dispute_relationship: dispute_relationship,
-    //             start_time: startTime,
-    //             end_time: endTime,
-    //         });
-
-    //         setSchedule(prev => [...prev, res.data]);
-    //         setIsModalOpen(false);
-    //         setSelectedJurors("");
-    //         setNote("");
-    //         setDispute_relationship("");
-    //         setLitigant("");
-    //         setStartTime("");
-    //         setEndTime("");
-    //         setSelectedRoom("");
-    //         setSelectedShift("");
-    //         setSelectedDate("");
-    //         toast.success("Đăng ký lịch xét xử thành công!");
-    //         await fetchSchedule(); 
-
-    //     } catch (err) {
-    //         toast.warning("Lỗi khi đăng ký phiên xử!");
-    //         if (err.response?.status === 400) {
-    //             toast.warning(err.response.data.detail);
-    //         }
-    //         console.error(err);
-    //     }
-    // };
 
     // ...existing code...
     const handleRegister = async () => {
