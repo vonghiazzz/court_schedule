@@ -290,9 +290,9 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
 
 
     // Lọc lịch trình chỉ trong tháng hiện tại    
+    const currentMonthPrefix = `${filterYear}-${String(filterMonth + 1).padStart(2, '0')}`;
     const scheduleInMonth = schedule.filter(item => {
-        const itemDate = new Date(item.date);
-        return itemDate.getFullYear() === filterYear && itemDate.getMonth() === filterMonth;
+        return item.date && item.date.startsWith(currentMonthPrefix);
     });
 
 
@@ -578,11 +578,11 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "4px" }}>
                 {calendarDays.map((day, idx) => {
-                    if (!day) return <div key={idx}></div>;
+                    if (!day) return <div key={`empty-${idx}`}></div>;
                     const dateStr = formatDate(day);
                     const dayEvents = getDaySchedule(dateStr);
                     return (
-                        <div key={day}
+                        <div key={`day-${day}`}
                             style={{
                                 border: "1px solid #ccc",
                                 padding: "6px",
