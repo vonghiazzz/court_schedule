@@ -6,63 +6,63 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
 const ROOMS = ["Hội trường 1", "Hội trường 2", "Hội trường 3", "Hội trường 4", "Hội trường 5", "Hội trường 6", "Hội trường 7", "Hội trường 8", "Hội trường 9", "Hội trường 10"];
-const SHIFTS = ["Sáng", "Chiều","Cả ngày"];
-const WEEKDAYS = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+const SHIFTS = ["Sáng", "Chiều", "Cả ngày"];
+const WEEKDAYS = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
 const MONTHS = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"];
 const JUROR = [
-  "Lê Thị Tú Anh",
-  "Ngụy Mộng Cầm",
-  "Nguyễn Tùng Châu",
-  "Huỳnh Thị Chi",
-  "Nguyễn Văn Cường",
-  "Trần Quang Đông",
-  "Nguyễn Thị Lệ Hoa",
-  "Lê Minh Hoàng",
-  "Nguyễn Văn Hoàng",
-  "Đoàn Văn Huệ",
-  "Nguyễn Thị Kim Hường",
-  "Trần Thị Minh Hường",
-  "Trần Thị Đức Nghiêm",
-  "Võ Thị Bích Ngọc",
-  "Võ Thị Mỹ Ngọc",
-  "Lê Thị Kiều Oanh",
-  "Trần Văn Mỹ Phúc",
-  "Dương Thị Phụng",
-  "Nguyễn Thị Lan Phương",
-  "Nguyễn Tấn Tài",
-  "Châu Thanh Tân",
-  "Nguyễn Thị Thanh Thảo",
-  "Lê Văn Thới",
-  "Đặng Ngọc Thu",
-  "Huỳnh Đặng Anh Thư",
-  "Phạm Văn Tư",
-  "Huỳnh Thị Thu Vân",
-  "Nguyễn Phương Thanh",
-  "Quách Tử Điệc",
-  "Nguyễn Văn Phước",
-  "Nguyễn Văn Trước",
-  "Trần Thanh Khen",
-  "Huỳnh Anh Dũng",
-  "Hồ Minh Hùng",
-  "Lê Minh Toàn",
-  "Trần Thanh Hiếu",
-  "Nguyễn Thị Hương",
-  "Quách Thái Vạn Thuận",
-  "Trần Văn Kiệt",
-  "Huỳnh Kim Phượng",
-  "Võ Thế Khoa",
-  "Nguyễn Văn Nghĩa",
-  "Trần Văn Thanh",
-  "Võ Hữu Phước",
-  "Nguyễn Thanh Phúc",
-  "Nguyễn Thị Tuyết Trang",
-  "Phạm Công Toàn",
-  "Trần Bích Trang",
-  "Trần Trung Nghĩa",
-  "Nguyễn Thị Hằng",
-  "Trần Thị Tuyết Nga",
-  "Nguyễn Thị Út",
-  "Trương Hữu Phước"
+    "Lê Thị Tú Anh",
+    "Ngụy Mộng Cầm",
+    "Nguyễn Tùng Châu",
+    "Huỳnh Thị Chi",
+    "Nguyễn Văn Cường",
+    "Trần Quang Đông",
+    "Nguyễn Thị Lệ Hoa",
+    "Lê Minh Hoàng",
+    "Nguyễn Văn Hoàng",
+    "Đoàn Văn Huệ",
+    "Nguyễn Thị Kim Hường",
+    "Trần Thị Minh Hường",
+    "Trần Thị Đức Nghiêm",
+    "Võ Thị Bích Ngọc",
+    "Võ Thị Mỹ Ngọc",
+    "Lê Thị Kiều Oanh",
+    "Trần Văn Mỹ Phúc",
+    "Dương Thị Phụng",
+    "Nguyễn Thị Lan Phương",
+    "Nguyễn Tấn Tài",
+    "Châu Thanh Tân",
+    "Nguyễn Thị Thanh Thảo",
+    "Lê Văn Thới",
+    "Đặng Ngọc Thu",
+    "Huỳnh Đặng Anh Thư",
+    "Phạm Văn Tư",
+    "Huỳnh Thị Thu Vân",
+    "Nguyễn Phương Thanh",
+    "Quách Tử Điệc",
+    "Nguyễn Văn Phước",
+    "Nguyễn Văn Trước",
+    "Trần Thanh Khen",
+    "Huỳnh Anh Dũng",
+    "Hồ Minh Hùng",
+    "Lê Minh Toàn",
+    "Trần Thanh Hiếu",
+    "Nguyễn Thị Hương",
+    "Quách Thái Vạn Thuận",
+    "Trần Văn Kiệt",
+    "Huỳnh Kim Phượng",
+    "Võ Thế Khoa",
+    "Nguyễn Văn Nghĩa",
+    "Trần Văn Thanh",
+    "Võ Hữu Phước",
+    "Nguyễn Thanh Phúc",
+    "Nguyễn Thị Tuyết Trang",
+    "Phạm Công Toàn",
+    "Trần Bích Trang",
+    "Trần Trung Nghĩa",
+    "Nguyễn Thị Hằng",
+    "Trần Thị Tuyết Nga",
+    "Nguyễn Thị Út",
+    "Trương Hữu Phước"
 ];
 
 export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }) {
@@ -97,7 +97,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
         setNewPassword("");
         setConfirmPassword("");
     };
-    
+
     const formatDate = (d) => {
         return `${filterYear}-${String(filterMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
     };
@@ -123,41 +123,41 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
             toast.warning(err.response?.data?.detail || "Đổi mật khẩu thất bại!");
         }
     };
-// Hàm format ngày: yyyy-mm-dd -> dd-mm-yyyy
+    // Hàm format ngày: yyyy-mm-dd -> dd-mm-yyyy
     const formatDateForExcel = (dateStr) => {
         if (!dateStr) return "";
         const [year, month, day] = dateStr.split("-");
         return `${day}-${month}-${year}`;
     };
     const handleDownloadJudgeStats = () => {
-    // Thêm số thứ tự (STT)
-    const data = Object.entries(stats)
-        .filter(([name]) => name.toLowerCase().includes(searchJudgeTerm.toLowerCase()))
-        .map(([name, d], index) => ({
-            "STT": index + 1,
-            "Thẩm phán": name,
-            "Đã hoàn thành": d.done,
-            "Chưa hoàn thành": d.pending,
-            "Tổng đăng ký": d.total
+        // Thêm số thứ tự (STT)
+        const data = Object.entries(stats)
+            .filter(([name]) => name.toLowerCase().includes(searchJudgeTerm.toLowerCase()))
+            .map(([name, d], index) => ({
+                "STT": index + 1,
+                "Thẩm phán": name,
+                "Đã hoàn thành": d.done,
+                "Chưa hoàn thành": d.pending,
+                "Tổng đăng ký": d.total
+            }));
+
+        // Tạo worksheet
+        const ws = XLSX.utils.json_to_sheet(data);
+
+        // Căn chỉnh độ rộng cột
+        const colWidths = Object.keys(data[0]).map((key) => ({
+            wch: Math.max(
+                key.length, // độ dài tiêu đề
+                ...data.map((row) => (row[key] ? row[key].toString().length : 0)) // max độ dài dữ liệu
+            ) + 2 // thêm padding cho đẹp
         }));
+        ws['!cols'] = colWidths;
 
-    // Tạo worksheet
-    const ws = XLSX.utils.json_to_sheet(data);
-
-    // Căn chỉnh độ rộng cột
-    const colWidths = Object.keys(data[0]).map((key) => ({
-        wch: Math.max(
-            key.length, // độ dài tiêu đề
-            ...data.map((row) => (row[key] ? row[key].toString().length : 0)) // max độ dài dữ liệu
-        ) + 2 // thêm padding cho đẹp
-    }));
-    ws['!cols'] = colWidths;
-
-    // Tạo workbook và ghi file
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "JudgeStats");
-    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    saveAs(new Blob([excelBuffer], { type: "application/octet-stream" }), "JudgeStats.xlsx");
+        // Tạo workbook và ghi file
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "JudgeStats");
+        const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+        saveAs(new Blob([excelBuffer], { type: "application/octet-stream" }), "JudgeStats.xlsx");
     };
 
     const formatTime = (timeStr) => {
@@ -206,56 +206,56 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
     //     saveAs(new Blob([excelBuffer], { type: "application/octet-stream" }), "Schedule.xlsx");
     // };
     const handleDownloadSchedule = () => {
-    // Sắp xếp tất cả lịch theo ngày tăng dần (quá khứ -> tương lai)
-    const sortedData = [...filteredSchedules].sort(
-        (a, b) => new Date(a.date) - new Date(b.date)
-    );
+        // Sắp xếp tất cả lịch theo ngày tăng dần (quá khứ -> tương lai)
+        const sortedData = [...filteredSchedules].sort(
+            (a, b) => new Date(a.date) - new Date(b.date)
+        );
 
-    const data = sortedData.map((item, index) => ({
-        "STT": index + 1,            
-        "Thời gian xét xử": `${formatDateForExcel(item.date)} | ${formatTime(item.start_time)}-${formatTime(item.end_time)}`,
-        "Đương sự": item.litigant,
-        "Quan hệ tranh chấp": item.dispute_relationship,
-        "Hội trường": item.room,
-        "Hội thẩm nhân dân": Array.isArray(item.jurors) ? item.jurors.join(", ") : item.jurors,
-        "Thẩm phán (Chủ tọa)": item.user?.username,            
-        "Ghi chú": item.note || ""
-    }));
+        const data = sortedData.map((item, index) => ({
+            "STT": index + 1,
+            "Thời gian xét xử": `${formatDateForExcel(item.date)} | ${formatTime(item.start_time)}-${formatTime(item.end_time)}`,
+            "Đương sự": item.litigant,
+            "Quan hệ tranh chấp": item.dispute_relationship,
+            "Hội trường": item.room,
+            "Hội thẩm nhân dân": Array.isArray(item.jurors) ? item.jurors.join(", ") : item.jurors,
+            "Thẩm phán (Chủ tọa)": item.user?.username,
+            "Ghi chú": item.note || ""
+        }));
 
-    if (data.length === 0) {
-        toast.warning("Không có lịch xét xử!");
-        return;
-    }
+        if (data.length === 0) {
+            toast.warning("Không có lịch xét xử!");
+            return;
+        }
 
-    const ws = XLSX.utils.json_to_sheet(data);
+        const ws = XLSX.utils.json_to_sheet(data);
 
-    Object.keys(ws).forEach((cell) => {
-        if (cell[0] === "!") return;
-        ws[cell].s = {
-            alignment: { vertical: "center", horizontal: "center" , wrapText: true}
-        };
-    });
+        Object.keys(ws).forEach((cell) => {
+            if (cell[0] === "!") return;
+            ws[cell].s = {
+                alignment: { vertical: "center", horizontal: "center", wrapText: true }
+            };
+        });
 
-    const colWidths = Object.keys(data[0]).map((key) => ({
-        wch: Math.max(
-            key.length,
-            ...data.map((row) => (row[key] ? row[key].toString().length : 0))
-        ) + 2
-    }));
-    ws['!cols'] = colWidths;
+        const colWidths = Object.keys(data[0]).map((key) => ({
+            wch: Math.max(
+                key.length,
+                ...data.map((row) => (row[key] ? row[key].toString().length : 0))
+            ) + 2
+        }));
+        ws['!cols'] = colWidths;
 
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Schedule");
-    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    saveAs(new Blob([excelBuffer], { type: "application/octet-stream" }), "Schedule.xlsx");
-};
-    
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Schedule");
+        const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+        saveAs(new Blob([excelBuffer], { type: "application/octet-stream" }), "Schedule.xlsx");
+    };
+
 
 
     // Tạo mảng năm (vd 2020-2030) để chọn
     const YEARS = Array.from({ length: 11 }, (_, i) => 2020 + i);
 
-    
+
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
     const today = new Date();
@@ -282,10 +282,12 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
     };
 
     const calendarDays = [];
-    for (let i = 0; i < firstDayWeekday; i++) calendarDays.push(null);
+    // Điều chỉnh offset: T2 (1) -> 0, ..., CN (0) -> 6
+    const startDayOffset = (firstDayWeekday + 6) % 7;
+    for (let i = 0; i < startDayOffset; i++) calendarDays.push(null);
     for (let d = 1; d <= daysInMonth; d++) calendarDays.push(d);
 
-  
+
 
     // Lọc lịch trình chỉ trong tháng hiện tại    
     const scheduleInMonth = schedule.filter(item => {
@@ -353,7 +355,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
 
 
 
-       const openRegisterModal = (dateStr) => {
+    const openRegisterModal = (dateStr) => {
         setSelectedDate(dateStr);
         setSelectedRoom("");
         setSelectedShift("");
@@ -367,18 +369,18 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
     };
 
     const handleEdit = (item) => {
-    setEditScheduleId(item.id);
-    setSelectedDate(item.date);
-    setSelectedRoom(item.room);
-    setSelectedShift(item.shift);
-    setSelectedJurors(item.jurors);
-    setNote(item.note || "");
-    setDispute_relationship(item.dispute_relationship || "");
-    setLitigant(item.litigant || "");
-    setStartTime(item.start_time || "");
-    setEndTime(item.end_time || "");
-    setIsModalOpen(true);
-};
+        setEditScheduleId(item.id);
+        setSelectedDate(item.date);
+        setSelectedRoom(item.room);
+        setSelectedShift(item.shift);
+        setSelectedJurors(item.jurors);
+        setNote(item.note || "");
+        setDispute_relationship(item.dispute_relationship || "");
+        setLitigant(item.litigant || "");
+        setStartTime(item.start_time || "");
+        setEndTime(item.end_time || "");
+        setIsModalOpen(true);
+    };
 
     // Load schedule
     const fetchSchedule = async () => {
@@ -403,7 +405,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
     useEffect(() => {
         setSelectedDate("");
         setIsModalOpen(false);
-        }, [filterMonth, filterYear]);
+    }, [filterMonth, filterYear]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -496,7 +498,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
             await api.delete(`/schedule/${item.id}`);
             setSchedule(prev => prev.filter(s => s.id !== item.id));
             toast.success("Xoá lịch thành công!");
-            await fetchSchedule(); 
+            await fetchSchedule();
         } catch (err) {
             console.error("Lỗi xoá:", err);
             toast.warning("Không thể xoá lịch này!");
@@ -544,15 +546,15 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
 
             {/* Chọn tháng & năm lọc */}
             <div style={{ marginBottom: "10px", display: "flex", gap: "10px", justifyContent: "center", alignItems: "center" }}>
-            <label>Chọn tháng: </label>
-            <select value={filterMonth} onChange={e => setFilterMonth(parseInt(e.target.value))} style={{ padding: "5px" }}>
-                {MONTHS.map((m, idx) => <option key={idx} value={idx}>{m}</option>)}
-            </select>
+                <label>Chọn tháng: </label>
+                <select value={filterMonth} onChange={e => setFilterMonth(parseInt(e.target.value))} style={{ padding: "5px" }}>
+                    {MONTHS.map((m, idx) => <option key={idx} value={idx}>{m}</option>)}
+                </select>
 
-            <label>Chọn năm: </label>
-            <select value={filterYear} onChange={e => setFilterYear(parseInt(e.target.value))} style={{ padding: "5px" }}>
-                {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
-            </select>
+                <label>Chọn năm: </label>
+                <select value={filterYear} onChange={e => setFilterYear(parseInt(e.target.value))} style={{ padding: "5px" }}>
+                    {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+                </select>
             </div>
 
             <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", marginBottom: "10px" }}>
@@ -569,7 +571,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
                 </button>
             </div>
 
-           
+
             <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", textAlign: "center", fontWeight: "bold" }}>
                 {WEEKDAYS.map(day => <div key={day}>{day}</div>)}
             </div>
@@ -594,26 +596,26 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
                         >
                             <div style={{ fontWeight: "bold", marginBottom: "4px" }}>{day}</div>
                             {dayEvents.map((ev, i) => {
-                            const eventDate = new Date(ev.date);
-                            eventDate.setHours(0, 0, 0, 0);
-                            const now = new Date();
-                            now.setHours(0, 0, 0, 0);
-                            const isFuture = eventDate > now;
+                                const eventDate = new Date(ev.date);
+                                eventDate.setHours(0, 0, 0, 0);
+                                const now = new Date();
+                                now.setHours(0, 0, 0, 0);
+                                const isFuture = eventDate > now;
 
-                            return (
-                                <div key={i} style={{
-                                    fontSize: "12px",
-                                    backgroundColor: ev.user?.username === judgeName ? "#55d099ff" : "#bfc4b7ff",
-                                    padding: "2px 4px",
-                                    margin: "2px 0",
-                                    borderRadius: "4px",
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center"
-                                }}>
-                                    <span>{ev.room} - {ev.shift}</span><br />
-                                    <span style={{ fontStyle: "italic" }}>{ev.user?.username || "?"}</span>
-                                    {/* {ev.user?.username === judgeName && isFuture && (
+                                return (
+                                    <div key={i} style={{
+                                        fontSize: "12px",
+                                        backgroundColor: ev.user?.username === judgeName ? "#55d099ff" : "#bfc4b7ff",
+                                        padding: "2px 4px",
+                                        margin: "2px 0",
+                                        borderRadius: "4px",
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center"
+                                    }}>
+                                        <span>{ev.room} - {ev.shift}</span><br />
+                                        <span style={{ fontStyle: "italic" }}>{ev.user?.username || "?"}</span>
+                                        {/* {ev.user?.username === judgeName && isFuture && (
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
@@ -624,37 +626,37 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
                                             ❌
                                         </button>
                                     )} */}
-                                    {ev.user?.username === judgeName && isFuture && (
-                                    <>
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleEdit(ev); // Thêm hàm này
-                                            }}
-                                            style={{ float: "right", border: "none", background: "none", color: "blue" }}
-                                        >
-                                            ✏️
-                                        </button>
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleDelete(ev);
-                                            }}
-                                            style={{ float: "right", border: "none", background: "none", color: "red" }}
-                                        >
-                                            ❌
-                                        </button>
-                                    </>
-                                )}
-                                </div>
-                            );
-                        })}
+                                        {ev.user?.username === judgeName && isFuture && (
+                                            <>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleEdit(ev); // Thêm hàm này
+                                                    }}
+                                                    style={{ float: "right", border: "none", background: "none", color: "blue" }}
+                                                >
+                                                    ✏️
+                                                </button>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleDelete(ev);
+                                                    }}
+                                                    style={{ float: "right", border: "none", background: "none", color: "red" }}
+                                                >
+                                                    ❌
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
                     );
                 })}
             </div>
 
-             {/* Modal đổi mật khẩu */}
+            {/* Modal đổi mật khẩu */}
             {isChangePasswordOpen && (
                 <div style={{
                     position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
@@ -731,25 +733,25 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
                             <div className="col-md-6">
                                 <label>Giờ bắt đầu:</label>
                                 <input
-                                type="time"
-                                className="form-control"
-                                value={startTime}
-                                onChange={(e) => setStartTime(e.target.value)}
+                                    type="time"
+                                    className="form-control"
+                                    value={startTime}
+                                    onChange={(e) => setStartTime(e.target.value)}
                                 />
                             </div>
 
                             <div className="col-md-6">
                                 <label>Giờ kết thúc:</label>
                                 <input
-                                type="time"
-                                className="form-control"
-                                value={endTime}
-                                onChange={(e) => setEndTime(e.target.value)}
+                                    type="time"
+                                    className="form-control"
+                                    value={endTime}
+                                    onChange={(e) => setEndTime(e.target.value)}
                                 />
                             </div>
-                            </div>
+                        </div>
 
-                       
+
                         <div style={{ marginTop: "10px" }}>
                             <label>Hội thẩm:</label>
                             <select
@@ -852,7 +854,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
                             <th style={thStyle}>Thời gian</th>
                             <th style={thStyle}>Hội trường</th>
                             <th style={thStyle}>Đương sự</th>
-                            <th style={thStyle}>Quan hệ tranh chấp</th>                            
+                            <th style={thStyle}>Quan hệ tranh chấp</th>
                             <th style={thStyle}>Thẩm phán</th>
                             <th style={thStyle}>Hội thẩm</th>
                             <th style={thStyle}>Ghi chú</th>
@@ -870,7 +872,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
                                     <td style={tdStyle}>{item.start_time}-{item.end_time}</td>
                                     <td style={tdStyle}>{item.room}</td>
                                     <td style={tdStyle}>{item.litigant}</td>
-                                    <td style={tdStyle}>{item.dispute_relationship}</td>                                    
+                                    <td style={tdStyle}>{item.dispute_relationship}</td>
                                     <td style={tdStyle}>{item.user?.username}</td>
                                     <td style={tdStyle}>
                                         {Array.isArray(item.jurors) ? item.jurors.join(", ") : item.jurors}
