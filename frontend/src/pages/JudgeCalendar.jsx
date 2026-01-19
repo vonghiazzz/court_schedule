@@ -71,7 +71,6 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
     const [selectedDate, setSelectedDate] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
     const [schedule, setSchedule] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRoom, setSelectedRoom] = useState("");
     const [selectedJurors, setSelectedJurors] = useState([]);
@@ -400,10 +399,10 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
             setSchedule(res.data);
         } catch (err) {
             console.error("Lỗi tải lịch:", err);
-        } finally {
-            setLoading(false);
         }
     };
+
+
 
     useEffect(() => {
         if (sessionStorage.getItem("justLoggedIn") === "true") {
@@ -460,12 +459,11 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
         };
 
         try {
-            let res;
             if (editScheduleId) {
-                res = await api.put(`/schedule/${editScheduleId}`, payload);
+                await api.put(`/schedule/${editScheduleId}`, payload);
                 toast.success("Cập nhật lịch xét xử thành công!");
             } else {
-                res = await api.post("/schedule/", payload);
+                await api.post("/schedule/", payload);
                 toast.success("Đăng ký lịch xét xử thành công!");
             }
 
