@@ -67,7 +67,7 @@ const JUROR = [
 
 export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }) {
     const navigate = useNavigate();
-    const [currentDate, setCurrentDate] = useState(new Date());
+    const [currentDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
     const [schedule, setSchedule] = useState([]);

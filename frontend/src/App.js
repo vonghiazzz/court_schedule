@@ -51,7 +51,7 @@ function App() {
         {/* Trang lịch dạng vạn niên của thẩm phán */}
         <Route
           path="/lich-tham-phan"
-          element={<JudgeCalendar judgeName={username} setToken={setToken} setUsername={setUsername} />}
+          element={<JudgeCalendar judgeName={username} onLogout={handleLogout} />}
         />
 
       </Routes>
