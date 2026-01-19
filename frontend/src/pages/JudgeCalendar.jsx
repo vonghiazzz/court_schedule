@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import api from "../utils/axios";
 import { toast } from "react-toastify";
-import * as XLSX from "xlsx";
+import * as XLSX from "xlsx-js-style";
 import { saveAs } from "file-saver";
 
 const ROOMS = ["Hội trường 1", "Hội trường 2", "Hội trường 3", "Hội trường 4", "Hội trường 5", "Hội trường 6", "Hội trường 7", "Hội trường 8", "Hội trường 9", "Hội trường 10"];
@@ -213,11 +213,11 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
 
         const data = sortedData.map((item, index) => ({
             "STT": index + 1,
-            "Thời gian xét xử": `${formatDateForExcel(item.date)} | ${formatTime(item.start_time)}-${formatTime(item.end_time)}`,
+            "Thời gian xét xử": `${formatDateForExcel(item.date)}\n${formatTime(item.start_time)} - ${formatTime(item.end_time)}`,
             "Đương sự": item.litigant,
             "Quan hệ tranh chấp": item.dispute_relationship,
             "Hội trường": item.room,
-            "Hội thẩm nhân dân": Array.isArray(item.jurors) ? item.jurors.join(", ") : item.jurors,
+            "Hội thẩm nhân dân": Array.isArray(item.jurors) ? item.jurors.join("\n") : item.jurors,
             "Thẩm phán (Chủ tọa)": item.user?.username,
             "Ghi chú": item.note || ""
         }));
@@ -231,8 +231,19 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
 
         Object.keys(ws).forEach((cell) => {
             if (cell[0] === "!") return;
+            // Áp dụng style cho từng ô
             ws[cell].s = {
-                alignment: { vertical: "center", horizontal: "center", wrapText: true }
+                alignment: {
+                    vertical: "center",
+                    horizontal: "center",
+                    wrapText: true // Đây là phần quan trọng để tự động xuống dòng
+                },
+                border: {
+                    top: { style: "thin" },
+                    bottom: { style: "thin" },
+                    left: { style: "thin" },
+                    right: { style: "thin" }
+                }
             };
         });
 

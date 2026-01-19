@@ -1,1 +1,27 @@
+# Environment
+.env
 backend/.env
+frontend/.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+.env/
+
+# Node
+node_modules/
+frontend/node_modules/
+build/
+frontend/build/
+.eslintcache
+
+# Docker
+.dockerignore
+
+# OS
+.DS_Store
+Thumbs.db

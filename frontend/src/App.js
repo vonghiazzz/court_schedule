@@ -9,7 +9,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token'))
-const [username, setUsername] = useState(() => localStorage.getItem("username") || "Khong xác định");
+  const [username, setUsername] = useState(() => localStorage.getItem("username") || "Khong xác định");
 
   // Cập nhật lại token nếu localStorage thay đổi (ví dụ sau khi đăng nhập)
   useEffect(() => {
@@ -22,38 +22,38 @@ const [username, setUsername] = useState(() => localStorage.getItem("username") 
     return () => window.removeEventListener('storage', handleStorage)
   }, [])
 
-   const handleLogout = () => {
+  const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("username");
     setToken(null);
     setUsername(null);
-    toast.success("Đăng xuất thành công!");          
+    toast.success("Đăng xuất thành công!");
     window.location.href = "/login"; // hoặc Navigate
   };
   const handleLoginSuccess = () => {
     setTimeout(() => {
-      toast.success("Đăng nhập thành công!");          
+      toast.success("Đăng nhập thành công!");
       window.location.href = "/lich-tham-phan"; // hoặc Navigate    
-    }, 2000); 
-};
+    }, 2000);
+  };
 
   return (
     <BrowserRouter>
       <ToastContainer position="top-right" autoClose={3000} />
 
-      <Routes>        
+      <Routes>
         {/* Trang mặc định → nếu đã đăng nhập thì vào schedule, chưa thì login */}
         <Route path="/" element={token ? <Navigate to="/lich-tham-phan" /> : <Login onLoginSuccess={handleLoginSuccess} />} />
-    
+
         {/* Trang đăng nhập */}
         <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
 
         {/* Trang lịch dạng vạn niên của thẩm phán */}
-         <Route
+        <Route
           path="/lich-tham-phan"
-          element={<JudgeCalendar judgeName={username} onLogout={handleLogout} />}
+          element={<JudgeCalendar judgeName={username} setToken={setToken} setUsername={setUsername} />}
         />
-        
+
       </Routes>
     </BrowserRouter>
   )

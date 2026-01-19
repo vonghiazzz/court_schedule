@@ -3,10 +3,10 @@ import axios from 'axios'
 
 // Tạo một instance axios
 const instance = axios.create({
+  baseURL: process.env.REACT_APP_API_URL || '/api',
   // baseURL: 'http://127.0.0.1:8000', // Base URL của FastAPI
   // baseURL: 'http://localhost:8001', // Base URL của FastAPI
-  baseURL: process.env.REACT_APP_API_URL, // On vercel
-
+  // baseURL: process.env.REACT_APP_API_URL, // On vercel
   // baseURL: 'https://talented-liberation-production.up.railway.app/',
   headers: {
     'Content-Type': 'application/json',
@@ -30,7 +30,7 @@ instance.interceptors.response.use(
   error => {
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('token')
-      window.location.href = '/' 
+      window.location.href = '/'
     }
     return Promise.reject(error)
   }
