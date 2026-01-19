@@ -17,12 +17,15 @@ const instance = axios.create({
 
 // 👉 Interceptor cho REQUEST: Tự động gắn token
 instance.interceptors.request.use(config => {
-  const token = localStorage.getItem('token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
   }
   return config
 })
+
 
 // 👉 Interceptor cho RESPONSE: Nếu token sai hoặc hết hạn thì logout
 instance.interceptors.response.use(
