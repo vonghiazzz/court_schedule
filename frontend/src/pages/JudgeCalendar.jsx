@@ -432,6 +432,19 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
             return;
         }
 
+          // Kiểm tra thời gian theo buổi
+        if (selectedShift === "Sáng") {
+            if (startTime > "12:00" || endTime > "12:00") {
+                toast.warning("Buổi sáng chỉ được chọn giờ từ 00:00 đến 12:00");
+                return;
+            }
+        } else if (selectedShift === "Chiều") {
+            if (startTime < "12:01" || endTime < "12:01") {
+                toast.warning("Buổi chiều chỉ được chọn giờ từ 12:01 đến 23:59");
+                return;
+            }
+        }
+        
         const count = schedule.filter(
             s => s.date === selectedDate && s.room === selectedRoom && s.shift === selectedShift
         ).length;
