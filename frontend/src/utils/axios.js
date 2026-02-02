@@ -3,16 +3,10 @@ import axios from 'axios'
 
 // Tạo một instance axios
 const instance = axios.create({
-  // baseURL: '/api',
-  // baseURL: 'http://127.0.0.1:8000', // Base URL của FastAPI
-  // baseURL: 'http://localhost:8001', // Base URL của FastAPI
-  baseURL: process.env.REACT_APP_API_URL, // On vercel
-  // baseURL: 'https://talented-liberation-production.up.railway.app/',
+  baseURL: process.env.REACT_APP_API_URL || '/api',
   headers: {
     'Content-Type': 'application/json',
-    // các header khác như Authorization nếu có
   },
-
 })
 
 // 👉 Interceptor cho REQUEST: Tự động gắn token
