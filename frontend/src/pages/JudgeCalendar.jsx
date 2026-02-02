@@ -405,6 +405,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
 
 
     useEffect(() => {
+        document.title = "Lịch Đăng Ký Phiên Xét Xử";
         if (sessionStorage.getItem("justLoggedIn") === "true") {
             toast.success("Đăng nhập thành công!");
             sessionStorage.removeItem("justLoggedIn");
@@ -432,7 +433,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
             return;
         }
 
-          // Kiểm tra thời gian theo buổi
+        // Kiểm tra thời gian theo buổi
         if (selectedShift === "Sáng") {
             if (startTime > "12:00" || endTime > "12:00") {
                 toast.warning("Buổi sáng chỉ được chọn giờ từ 00:00 đến 12:00");
@@ -444,7 +445,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
                 return;
             }
         }
-        
+
         const count = schedule.filter(
             s => s.date === selectedDate && s.room === selectedRoom && s.shift === selectedShift
         ).length;

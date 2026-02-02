@@ -1,11 +1,15 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import axios from '../utils/axios'
 import { toast } from "react-toastify";
 
 function Login({ onLoginSuccess }) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  
+
+  useEffect(() => {
+    document.title = "Đăng nhập - Hệ thống Lịch Xét xử";
+  }, []);
+
   const handleLogin = async (e) => {
     e.preventDefault()
     try {
@@ -20,7 +24,7 @@ function Login({ onLoginSuccess }) {
 
       if (res.data?.access_token) {
         localStorage.setItem('token', res.data.access_token)
-        localStorage.setItem('username', username)                
+        localStorage.setItem('username', username)
         sessionStorage.setItem('justLoggedIn', 'true'); // 👈 set flag
         window.dispatchEvent(new Event('storage'))
         if (onLoginSuccess) onLoginSuccess()
@@ -40,7 +44,7 @@ function Login({ onLoginSuccess }) {
           <div className="card shadow">
             <div className="card-body">
               <h3 className="card-title mb-4 text-center">Trang Đăng Nhập</h3>
-               <div className="text-center mt-4">
+              <div className="text-center mt-4">
                 <img
                   src="/images/logoToaAn.jpg"
                   alt="Logo Tòa Án"
@@ -67,7 +71,7 @@ function Login({ onLoginSuccess }) {
                     onChange={(e) => setPassword(e.target.value)}
                   />
                 </div>
-                
+
                 <button type="submit" className="btn btn-primary w-100">
                   Đăng nhập
                 </button>
