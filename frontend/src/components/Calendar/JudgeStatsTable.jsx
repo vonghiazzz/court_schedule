@@ -5,6 +5,7 @@ const JudgeStatsTable = ({ stats, searchJudgeTerm, setSearchJudgeTerm, onDownloa
         <div style={{ marginTop: "40px" }}>
             <h3>📋 Danh sách lịch xét xử từng thẩm phán trong tháng</h3>
             <button onClick={onDownload} style={{ marginBottom: "10px" }}>⬇️ Tải về bảng Excel</button>
+            <h5>Tổng số thẩm phán: {Object.keys(stats).length} thẩm phán</h5>
             <input
                 type="text"
                 placeholder="🔍 Tìm kiếm theo thẩm phán"
@@ -15,6 +16,7 @@ const JudgeStatsTable = ({ stats, searchJudgeTerm, setSearchJudgeTerm, onDownloa
             <table className="stats-table">
                 <thead>
                     <tr>
+                        <th>STT</th>
                         <th>Thẩm phán</th>
                         <th>Đã hoàn thành</th>
                         <th>Chưa hoàn thành</th>
@@ -26,6 +28,7 @@ const JudgeStatsTable = ({ stats, searchJudgeTerm, setSearchJudgeTerm, onDownloa
                         .filter(([name]) => name.toLowerCase().includes(searchJudgeTerm.toLowerCase()))
                         .map(([name, data], idx) => (
                             <tr key={idx}>
+                                <td>{idx + 1}</td>
                                 <td>{name}</td>
                                 <td>{data.done}</td>
                                 <td>{data.pending}</td>

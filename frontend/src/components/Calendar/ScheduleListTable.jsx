@@ -21,6 +21,7 @@ const ScheduleListTable = ({
             <table className="schedule-list-table">
                 <thead>
                     <tr>
+                        <th>STT</th>
                         <th>Ngày</th>
                         <th>Buổi</th>
                         <th>Thời gian</th>
@@ -35,8 +36,9 @@ const ScheduleListTable = ({
                 <tbody>
                     {[...filteredSchedules]
                         .sort((a, b) => new Date(a.date) - new Date(b.date))
-                        .map((item) => (
+                        .map((item, idx) => (
                             <tr key={item.id} style={{ borderBottom: "1px solid #ccc" }}>
+                                <td>{idx + 1}</td>
                                 <td>{new Date(item.date).toLocaleDateString("vi-VN")}</td>
                                 <td>{item.shift}</td>
                                 <td>{item.start_time}-{item.end_time}</td>
