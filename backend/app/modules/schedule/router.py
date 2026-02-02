@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app import models, schemas, database, auth
 from typing import List
-from app.auth import get_current_user
-from sqlalchemy import or_, func
-
+from app.modules.schedule import models, schemas
+from app.modules.users import models as users_models
+from app.core import database
+from app.modules.auth.service import get_current_user
+from sqlalchemy import or_
 
 router = APIRouter(prefix="/schedule", tags=["Schedule"])
 
@@ -19,7 +20,7 @@ def get_db():
 def create_schedule(
     schedule: schemas.ScheduleCreate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
+    current_user: users_models.User = Depends(get_current_user)
 ):
     # Kiểm tra đã có 2 người đăng ký buổi này chưa
     same_slot = db.query(models.Schedule).filter(
@@ -87,7 +88,7 @@ def get_all_schedules(db: Session = Depends(get_db)):
 def delete_schedule(
     schedule_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
+    current_user: users_models.User = Depends(get_current_user)
 ):
     schedule = db.query(models.Schedule).filter(models.Schedule.id == schedule_id).first()
     if not schedule:
@@ -105,7 +106,7 @@ def update_schedule(
     schedule_id: int,
     schedule: schemas.ScheduleCreate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
+    current_user: users_models.User = Depends(get_current_user)
 ):
     db_schedule = db.query(models.Schedule).filter(models.Schedule.id == schedule_id).first()
     if not db_schedule:

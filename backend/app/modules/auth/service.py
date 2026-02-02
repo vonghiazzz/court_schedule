@@ -5,7 +5,8 @@ from passlib.context import CryptContext
 
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
-from app import models, database
+from app.modules.users import models
+from app.core import database
 
 
 SECRET_KEY = "secret123"  # Đổi thành bí mật riêng của bạn

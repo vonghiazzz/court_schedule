@@ -1,0 +1,124 @@
+.calendar-container {
+    padding: 20px;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.calendar-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.calendar-table th {
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: #f4f4f4;
+    text-align: center;
+}
+
+.calendar-table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    height: 100px;
+    vertical-align: top;
+    position: relative;
+    cursor: pointer;
+}
+
+.calendar-table td:hover {
+    background-color: #f9f9f9;
+}
+
+.calendar-day-number {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.schedule-item {
+    font-size: 11px;
+    background-color: #e3f2fd;
+    margin-bottom: 2px;
+    padding: 2px 4px;
+    border-radius: 2px;
+    color: #1976d2;
+}
+
+.stats-table,
+.schedule-list-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.stats-table th,
+.schedule-list-table th {
+    background-color: #38b9ec;
+    color: white;
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+}
+
+.stats-table td,
+.schedule-list-table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    border-radius: 8px;
+    width: 400px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+/* Loading Spinner */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}

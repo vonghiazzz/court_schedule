@@ -2,94 +2,67 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import api from "../utils/axios";
 import { toast } from "react-toastify";
-import * as XLSX from "xlsx-js-style";
-import { saveAs } from "file-saver";
+import { downloadJudgeStats, downloadSchedule } from "../utils/excel";
 
-const ROOMS = ["Hội trường 1", "Hội trường 2", "Hội trường 3", "Hội trường 4", "Hội trường 5", "Hội trường 6", "Hội trường 7", "Hội trường 8", "Hội trường 9", "Hội trường 10"];
-const SHIFTS = ["Sáng", "Chiều", "Cả ngày"];
-const WEEKDAYS = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
-const MONTHS = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"];
-const JUROR = [
-    "Lê Thị Tú Anh",
-    "Ngụy Mộng Cầm",
-    "Nguyễn Tùng Châu",
-    "Huỳnh Thị Chi",
-    "Nguyễn Văn Cường",
-    "Trần Quang Đông",
-    "Nguyễn Thị Lệ Hoa",
-    "Lê Minh Hoàng",
-    "Nguyễn Văn Hoàng",
-    "Đoàn Văn Huệ",
-    "Nguyễn Thị Kim Hường",
-    "Trần Thị Minh Hường",
-    "Trần Thị Đức Nghiêm",
-    "Võ Thị Bích Ngọc",
-    "Võ Thị Mỹ Ngọc",
-    "Lê Thị Kiều Oanh",
-    "Trần Văn Mỹ Phúc",
-    "Dương Thị Phụng",
-    "Nguyễn Thị Lan Phương",
-    "Nguyễn Tấn Tài",
-    "Châu Thanh Tân",
-    "Nguyễn Thị Thanh Thảo",
-    "Lê Văn Thới",
-    "Đặng Ngọc Thu",
-    "Huỳnh Đặng Anh Thư",
-    "Phạm Văn Tư",
-    "Huỳnh Thị Thu Vân",
-    "Nguyễn Phương Thanh",
-    "Quách Tử Điệc",
-    "Nguyễn Văn Phước",
-    "Nguyễn Văn Trước",
-    "Trần Thanh Khen",
-    "Huỳnh Anh Dũng",
-    "Hồ Minh Hùng",
-    "Lê Minh Toàn",
-    "Trần Thanh Hiếu",
-    "Nguyễn Thị Hương",
-    "Quách Thái Vạn Thuận",
-    "Trần Văn Kiệt",
-    "Huỳnh Kim Phượng",
-    "Võ Thế Khoa",
-    "Nguyễn Văn Nghĩa",
-    "Trần Văn Thanh",
-    "Võ Hữu Phước",
-    "Nguyễn Thanh Phúc",
-    "Nguyễn Thị Tuyết Trang",
-    "Phạm Công Toàn",
-    "Trần Bích Trang",
-    "Trần Trung Nghĩa",
-    "Nguyễn Thị Hằng",
-    "Trần Thị Tuyết Nga",
-    "Nguyễn Thị Út",
-    "Trương Hữu Phước"
-];
+// Hooks
+import { useCalendarData } from "../hooks/useCalendarData";
+
+// UI Components
+import ChangePasswordModal from "../components/Modals/ChangePasswordModal";
+import RegisterModal from "../components/Modals/RegisterModal";
+import CalendarHeader from "../components/Calendar/CalendarHeader";
+import CalendarGrid from "../components/Calendar/CalendarGrid";
+import JudgeStatsTable from "../components/Calendar/JudgeStatsTable";
+import ScheduleListTable from "../components/Calendar/ScheduleListTable";
+
+// Styles
+import "../styles/JudgeCalendar.css";
 
 export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }) {
     const navigate = useNavigate();
     const [currentDate] = useState(new Date());
-    const [selectedDate, setSelectedDate] = useState("");
+    const [filterMonth, setFilterMonth] = useState(currentDate.getMonth());
+    const [filterYear, setFilterYear] = useState(currentDate.getFullYear());
     const [searchTerm, setSearchTerm] = useState("");
-    const [schedule, setSchedule] = useState([]);
+    const [searchJudgeTerm, setSearchJudgeTerm] = useState("");
+
+    // Hook for data logic
+    const { schedule, filteredSchedules, stats, fetchSchedule, loading } = useCalendarData(
+        currentDate, filterMonth, filterYear, searchTerm
+    );
+
+    // Modal & Form State
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedDate, setSelectedDate] = useState("");
     const [selectedRoom, setSelectedRoom] = useState("");
     const [selectedJurors, setSelectedJurors] = useState([]);
     const [selectedShift, setSelectedShift] = useState("");
-    const [note, setNote] = useState("");
-    const [dispute_relationship, setDispute_relationship] = useState("");
+    const [startTime, setStartTime] = useState("");
+    const [endTime, setEndTime] = useState("");
     const [litigant, setLitigant] = useState("");
+    const [dispute_relationship, setDispute_relationship] = useState("");
+    const [note, setNote] = useState("");
     const [editScheduleId, setEditScheduleId] = useState(null);
 
-    const [endTime, setEndTime] = useState("");
-    const [startTime, setStartTime] = useState("");
-    const [searchJudgeTerm, setSearchJudgeTerm] = useState("");
-
+    // Password State
     const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
     const [oldPassword, setOldPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
 
-    // Hàm mở modal đổi mật khẩu
+    useEffect(() => {
+        document.title = "Lịch Đăng Ký Phiên Xét Xử";
+        if (sessionStorage.getItem("justLoggedIn") === "true") {
+            toast.success("Đăng nhập thành công!");
+            sessionStorage.removeItem("justLoggedIn");
+        }
+    }, []);
+
+    useEffect(() => {
+        setSelectedDate("");
+        setIsModalOpen(false);
+    }, [filterMonth, filterYear]);
+
     const handleChangePassword = () => {
         setIsChangePasswordOpen(true);
         setOldPassword("");
@@ -97,11 +70,6 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
         setConfirmPassword("");
     };
 
-    const formatDate = (d) => {
-        return `${filterYear}-${String(filterMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-    };
-
-    // Hàm gửi đổi mật khẩu
     const submitChangePassword = async () => {
         if (!oldPassword || !newPassword || !confirmPassword) {
             toast.warning("Vui lòng nhập đủ thông tin!");
@@ -112,258 +80,13 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
             return;
         }
         try {
-            await api.post("/change-password", {
-                old_password: oldPassword,
-                new_password: newPassword
-            });
+            await api.post("/change-password", { old_password: oldPassword, new_password: newPassword });
             toast.success("Đổi mật khẩu thành công!");
             setIsChangePasswordOpen(false);
         } catch (err) {
             toast.warning(err.response?.data?.detail || "Đổi mật khẩu thất bại!");
         }
     };
-    // Hàm format ngày: yyyy-mm-dd -> dd-mm-yyyy
-    const formatDateForExcel = (dateStr) => {
-        if (!dateStr) return "";
-        const [year, month, day] = dateStr.split("-");
-        return `${day}-${month}-${year}`;
-    };
-    const handleDownloadJudgeStats = () => {
-        // Thêm số thứ tự (STT)
-        const data = Object.entries(stats)
-            .filter(([name]) => name.toLowerCase().includes(searchJudgeTerm.toLowerCase()))
-            .map(([name, d], index) => ({
-                "STT": index + 1,
-                "Thẩm phán": name,
-                "Đã hoàn thành": d.done,
-                "Chưa hoàn thành": d.pending,
-                "Tổng đăng ký": d.total
-            }));
-
-        // Tạo worksheet
-        const ws = XLSX.utils.json_to_sheet(data);
-
-        // Căn chỉnh độ rộng cột
-        const colWidths = Object.keys(data[0]).map((key) => ({
-            wch: Math.max(
-                key.length, // độ dài tiêu đề
-                ...data.map((row) => (row[key] ? row[key].toString().length : 0)) // max độ dài dữ liệu
-            ) + 2 // thêm padding cho đẹp
-        }));
-        ws['!cols'] = colWidths;
-
-        // Tạo workbook và ghi file
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "JudgeStats");
-        const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-        saveAs(new Blob([excelBuffer], { type: "application/octet-stream" }), "JudgeStats.xlsx");
-    };
-
-    const formatTime = (timeStr) => {
-        if (!timeStr) return "";
-        return timeStr.slice(0, 5); // lấy HH:mm, bỏ giây
-    };
-
-    // Hàm xuất Excel cho danh sách lịch xét xử trong tháng
-    // const handleDownloadSchedule = () => {
-    //     // Thêm số thứ tự (STT)
-    //     const data = filteredSchedules.map((item, index) => ({
-    //         "STT": index + 1,            
-    //         "Thời gian xét xử": `${formatDateForExcel(item.date)} | ${formatTime(item.start_time)}-${formatTime(item.end_time)}`,
-    //         "Đương sự": item.litigant,
-    //         "Quan hệ tranh chấp": item.dispute_relationship,
-    //         "Hội trường": item.room,
-    //         "Hội thẩm nhân dân": Array.isArray(item.jurors) ? item.jurors.join(", ") : item.jurors,
-    //         "Thẩm phán (Chủ tọa)": item.user?.username,            
-    //         "Ghi chú": item.note || ""
-    //     }));
-
-    //     // Tạo worksheet
-    //     const ws = XLSX.utils.json_to_sheet(data);
-
-    //     // Căn giữa tất cả cell (nếu muốn đồng bộ)
-    //     Object.keys(ws).forEach((cell) => {
-    //         if (cell[0] === "!") return;
-    //         ws[cell].s = {
-    //             alignment: { vertical: "center", horizontal: "center" , wrapText: true}
-    //         };
-    //     });
-
-    //     // Căn chỉnh độ rộng cột tự động
-    //     const colWidths = Object.keys(data[0]).map((key) => ({
-    //         wch: Math.max(
-    //             key.length, // độ dài tiêu đề
-    //             ...data.map((row) => (row[key] ? row[key].toString().length : 0))
-    //         ) + 2
-    //     }));
-    //     ws['!cols'] = colWidths;
-
-    //     // Tạo workbook và ghi file
-    //     const wb = XLSX.utils.book_new();
-    //     XLSX.utils.book_append_sheet(wb, ws, "Schedule");
-    //     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    //     saveAs(new Blob([excelBuffer], { type: "application/octet-stream" }), "Schedule.xlsx");
-    // };
-    const handleDownloadSchedule = () => {
-        // Sắp xếp tất cả lịch theo ngày tăng dần (quá khứ -> tương lai)
-        const sortedData = [...filteredSchedules].sort(
-            (a, b) => new Date(a.date) - new Date(b.date)
-        );
-
-        const data = sortedData.map((item, index) => ({
-            "STT": index + 1,
-            "Thời gian xét xử": `${formatDateForExcel(item.date)}\n${formatTime(item.start_time)} - ${formatTime(item.end_time)}`,
-            "Đương sự": item.litigant,
-            "Quan hệ tranh chấp": item.dispute_relationship,
-            "Hội trường": item.room,
-            "Hội thẩm nhân dân": Array.isArray(item.jurors) ? item.jurors.join("\n") : item.jurors,
-            "Thẩm phán (Chủ tọa)": item.user?.username,
-            "Ghi chú": item.note || ""
-        }));
-
-        if (data.length === 0) {
-            toast.warning("Không có lịch xét xử!");
-            return;
-        }
-
-        const ws = XLSX.utils.json_to_sheet(data);
-
-        Object.keys(ws).forEach((cell) => {
-            if (cell[0] === "!") return;
-            // Áp dụng style cho từng ô
-            ws[cell].s = {
-                alignment: {
-                    vertical: "center",
-                    horizontal: "center",
-                    wrapText: true // Đây là phần quan trọng để tự động xuống dòng
-                },
-                border: {
-                    top: { style: "thin" },
-                    bottom: { style: "thin" },
-                    left: { style: "thin" },
-                    right: { style: "thin" }
-                }
-            };
-        });
-
-        const colWidths = Object.keys(data[0]).map((key) => ({
-            wch: Math.max(
-                key.length,
-                ...data.map((row) => (row[key] ? row[key].toString().length : 0))
-            ) + 2
-        }));
-        ws['!cols'] = colWidths;
-
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Schedule");
-        const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-        saveAs(new Blob([excelBuffer], { type: "application/octet-stream" }), "Schedule.xlsx");
-    };
-
-
-
-    // Tạo mảng năm (vd 2020-2030) để chọn
-    const YEARS = Array.from({ length: 11 }, (_, i) => 2020 + i);
-
-
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
-    const today = new Date();
-    const [filterMonth, setFilterMonth] = useState(month);
-    const [filterYear, setFilterYear] = useState(year);
-
-    today.setHours(0, 0, 0, 0); // Đặt giờ về 0 để so sánh ngày chính xác
-
-    // const daysInMonth = new Date(year, month + 1, 0).getDate();
-    // const firstDayWeekday = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(filterYear, filterMonth + 1, 0).getDate();
-    const firstDayWeekday = new Date(filterYear, filterMonth, 1).getDay();
-
-
-    const thStyle = {
-        border: "1px solid #ccc",
-        padding: "8px",
-        textAlign: "left"
-    };
-
-    const tdStyle = {
-        border: "1px solid #ccc",
-        padding: "8px"
-    };
-
-    const calendarDays = [];
-    // Điều chỉnh offset: T2 (1) -> 0, ..., CN (0) -> 6
-    const startDayOffset = (firstDayWeekday + 6) % 7;
-    for (let i = 0; i < startDayOffset; i++) calendarDays.push(null);
-    for (let d = 1; d <= daysInMonth; d++) calendarDays.push(d);
-
-
-
-    // Lọc lịch trình chỉ trong tháng hiện tại    
-    const currentMonthPrefix = `${filterYear}-${String(filterMonth + 1).padStart(2, '0')}`;
-    const scheduleInMonth = schedule.filter(item => {
-        return item.date && item.date.startsWith(currentMonthPrefix);
-    });
-
-
-
-    // Gom thống kê theo tất cả thẩm phán trong tháng
-    const stats = scheduleInMonth.reduce((acc, s) => {
-        const scheduleJudgeName = s.user?.username || "Không rõ";
-        if (!acc[scheduleJudgeName]) {
-            acc[scheduleJudgeName] = {
-                done: 0,
-                pending: 0,
-                total: 0
-            };
-        }
-        acc[scheduleJudgeName].total += 1;
-
-        const scheduleDate = new Date(s.date);
-        if (scheduleDate < today) {
-            acc[scheduleJudgeName].done += 1;
-        } else {
-            acc[scheduleJudgeName].pending += 1;
-        }
-
-        return acc;
-    }, {});
-
-    // Hàm bỏ dấu tiếng Việt
-    const removeVietnameseTones = (str) => {
-        return str
-            .normalize("NFD") // tách dấu ra khỏi chữ
-            .replace(/[\u0300-\u036f]/g, "") // xóa các dấu
-            .replace(/đ/g, "d")
-            .replace(/Đ/g, "D");
-    };
-
-    // // Lọc danh sách lịch theo từ khóa tìm kiếm
-    const filteredSchedules = scheduleInMonth.filter(item => {
-        const keyword = removeVietnameseTones(searchTerm.toLowerCase());
-
-        const jurorsMatch = Array.isArray(item.jurors)
-            ? item.jurors.some(juror =>
-                removeVietnameseTones(juror.toLowerCase()).includes(keyword)
-            )
-            : removeVietnameseTones((item.jurors || "").toLowerCase()).includes(keyword);
-
-        const matchKeyword =
-            removeVietnameseTones(item.room?.toLowerCase() || "").includes(keyword) ||
-            removeVietnameseTones(item.shift?.toLowerCase() || "").includes(keyword) ||
-            removeVietnameseTones(item.note?.toLowerCase() || "").includes(keyword) ||
-            removeVietnameseTones(item.dispute_relationship?.toLowerCase() || "").includes(keyword) ||
-            removeVietnameseTones(item.litigant?.toLowerCase() || "").includes(keyword) ||
-            removeVietnameseTones(item.start_time?.toLowerCase() || "").includes(keyword) ||
-            removeVietnameseTones(item.end_time?.toLowerCase() || "").includes(keyword) ||
-            removeVietnameseTones(item.user?.username?.toLowerCase() || "").includes(keyword) ||
-            jurorsMatch ||
-            removeVietnameseTones(item.date?.toLowerCase() || "").includes(keyword);
-
-        return matchKeyword;
-    });
-
-
 
     const openRegisterModal = (dateStr) => {
         setSelectedDate(dateStr);
@@ -374,7 +97,8 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
         setLitigant("");
         setEndTime("");
         setStartTime("");
-        setSelectedJurors("");
+        setSelectedJurors([]);
+        setEditScheduleId(null);
         setIsModalOpen(true);
     };
 
@@ -392,64 +116,43 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
         setIsModalOpen(true);
     };
 
-    // Load schedule
-    const fetchSchedule = async () => {
+    const handleDelete = async (item) => {
+        const itemDate = new Date(item.date);
+        const todayDate = new Date();
+        todayDate.setHours(0, 0, 0, 0);
+
+        if (itemDate < todayDate) {
+            toast.warning("⛔ Không thể xoá lịch trong quá khứ!");
+            return;
+        }
+        if (item.user?.username !== judgeName) return;
+        if (!window.confirm(`Bạn có chắc chắn muốn xoá lịch xử vào ngày ${item.date} không?`)) return;
+
         try {
-            const res = await api.get("/schedule");
-            setSchedule(res.data);
+            await api.delete(`/schedule/${item.id}`);
+            toast.success("Xoá lịch thành công!");
+            await fetchSchedule(true);
         } catch (err) {
-            console.error("Lỗi tải lịch:", err);
+            console.error("Lỗi xoá:", err);
+            toast.warning("Không thể xoá lịch này!");
         }
     };
 
-
-
-    useEffect(() => {
-        document.title = "Lịch Đăng Ký Phiên Xét Xử";
-        if (sessionStorage.getItem("justLoggedIn") === "true") {
-            toast.success("Đăng nhập thành công!");
-            sessionStorage.removeItem("justLoggedIn");
-        }
-        fetchSchedule();
-    }, [currentDate]);
-
-    useEffect(() => {
-        setSelectedDate("");
-        setIsModalOpen(false);
-    }, [filterMonth, filterYear]);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            fetchSchedule();
-        }, 30000); // 30 giây gọi lại API 1 lần
-
-        return () => clearInterval(interval);
-    }, []);
-
-    // ...existing code...
     const handleRegister = async () => {
-        if (!selectedRoom || !selectedShift || !selectedJurors || !selectedDate || !startTime || !endTime) {
-            toast.warning("Vui lòng điền đầy đủ hội trường, buổi và hội thẩm.");
+        if (!selectedRoom || !selectedShift || !selectedJurors.length || !selectedDate || !startTime || !endTime) {
+            toast.warning("Vui lòng điền đầy đủ thông tin.");
             return;
         }
 
-        // Kiểm tra thời gian theo buổi
-        if (selectedShift === "Sáng") {
-            if (startTime > "12:00" || endTime > "12:00") {
-                toast.warning("Buổi sáng chỉ được chọn giờ từ 00:00 đến 12:00");
-                return;
-            }
-        } else if (selectedShift === "Chiều") {
-            if (startTime < "12:01" || endTime < "12:01") {
-                toast.warning("Buổi chiều chỉ được chọn giờ từ 12:01 đến 23:59");
-                return;
-            }
+        if (selectedShift === "Sáng" && (startTime > "12:00" || endTime > "12:00")) {
+            toast.warning("Buổi sáng chỉ được chọn giờ từ 00:00 đến 12:00");
+            return;
+        } else if (selectedShift === "Chiều" && (startTime < "12:01" || endTime < "12:01")) {
+            toast.warning("Buổi chiều chỉ được chọn giờ từ 12:01 đến 23:59");
+            return;
         }
 
-        const count = schedule.filter(
-            s => s.date === selectedDate && s.room === selectedRoom && s.shift === selectedShift
-        ).length;
-
+        const count = schedule.filter(s => s.date === selectedDate && s.room === selectedRoom && s.shift === selectedShift).length;
         if (!editScheduleId && count >= 2) {
             toast.warning("Mỗi buổi tại một hội trường chỉ được đăng ký tối đa 2 vụ xử!");
             return;
@@ -465,9 +168,9 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
             room: selectedRoom,
             shift: selectedShift,
             jurors: selectedJurors,
-            note: note,
-            litigant: litigant,
-            dispute_relationship: dispute_relationship,
+            note,
+            litigant,
+            dispute_relationship,
             start_time: startTime,
             end_time: endTime,
         };
@@ -475,445 +178,126 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
         try {
             if (editScheduleId) {
                 await api.put(`/schedule/${editScheduleId}`, payload);
-                toast.success("Cập nhật lịch xét xử thành công!");
+                toast.success("Cập nhật lịch thành công!");
             } else {
                 await api.post("/schedule/", payload);
-                toast.success("Đăng ký lịch xét xử thành công!");
+                toast.success("Đăng ký lịch thành công!");
             }
-
             setIsModalOpen(false);
-            setEditScheduleId(null);
-            setSelectedJurors("");
-            setNote("");
-            setDispute_relationship("");
-            setLitigant("");
-            setStartTime("");
-            setEndTime("");
-            setSelectedRoom("");
-            setSelectedShift("");
-            setSelectedDate("");
-            await fetchSchedule();
-
+            await fetchSchedule(true); // Silent reload after mutation
         } catch (err) {
-            toast.warning("Lỗi khi đăng ký/cập nhật phiên xử!");
-            if (err.response?.status === 400) {
-                toast.warning(err.response.data.detail);
-            }
-            console.error(err);
+            toast.warning(err.response?.data?.detail || "Lỗi khi đăng ký/cập nhật phiên xử!");
         }
-    };
-    // ...existing code...
-
-    // 👉 Xoá lịch
-    const handleDelete = async (item) => {
-        const itemDate = new Date(item.date);
-        const todayDate = new Date();
-        todayDate.setHours(0, 0, 0, 0);
-
-        if (itemDate < todayDate) {
-            toast.warning("⛔ Không thể xoá lịch trong quá khứ!");
-            return;
-        }
-        if (item.user?.username !== judgeName) return;
-        const confirmed = window.confirm(`Bạn có chắc chắn muốn xoá lịch xử vào ngày ${item.date} không?`);
-        if (!confirmed) return;
-        try {
-            await api.delete(`/schedule/${item.id}`);
-            setSchedule(prev => prev.filter(s => s.id !== item.id));
-            toast.success("Xoá lịch thành công!");
-            await fetchSchedule();
-        } catch (err) {
-            console.error("Lỗi xoá:", err);
-            toast.warning("Không thể xoá lịch này!");
-        }
-    };
-
-    const getDaySchedule = (dateStr) => {
-        return scheduleInMonth.filter(s => s.date === dateStr);
-    };
-
-    const isToday = (day) => {
-        return (
-            today.getFullYear() === filterYear &&
-            today.getMonth() === filterMonth &&
-            today.getDate() === day
-        );
-    };
-    const isPastDayOrToDay = (day) => {
-        const date = new Date(filterYear, filterMonth, day);  // ✔️ dùng filterMonth, filterYear
-        const todayWithoutTime = new Date();
-        return date < todayWithoutTime;
     };
 
     const handleLogout = () => {
-        const confirmed = window.confirm("Bạn có chắc chắn muốn đăng xuất?");
-        if (!confirmed) return;
-
+        if (!window.confirm("Bạn có chắc chắn muốn đăng xuất?")) return;
         localStorage.removeItem("token");
         localStorage.removeItem("username");
-
         if (onLogoutPropsChange) {
             onLogoutPropsChange.setToken(null);
             onLogoutPropsChange.setUsername(null);
         }
-
         toast.success("Đăng xuất thành công!");
         navigate('/login');
     };
 
+    // Calendar Helper Functions
+    const daysInMonth = new Date(filterYear, filterMonth + 1, 0).getDate();
+    const firstDayWeekday = new Date(filterYear, filterMonth, 1).getDay();
+    const calendarDays = [];
+    const startDayOffset = (firstDayWeekday + 6) % 7;
+    for (let i = 0; i < startDayOffset; i++) calendarDays.push(null);
+    for (let d = 1; d <= daysInMonth; d++) calendarDays.push(d);
+
+    const formatDateStr = (d) => `${filterYear}-${String(filterMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+    const getDaySchedule = (dateStr) => schedule.filter(s => s.date === dateStr);
+
+    const isToday = (day) => {
+        const today = new Date();
+        return today.getFullYear() === filterYear && today.getMonth() === filterMonth && today.getDate() === day;
+    };
+
+    const isPastDayOrToDay = (day) => {
+        const date = new Date(filterYear, filterMonth, day);
+        const todayNoTime = new Date();
+        todayNoTime.setHours(0, 0, 0, 0);
+        return date < todayNoTime;
+    };
+
+    const handleDownloadStats = () => {
+        downloadJudgeStats(stats, searchJudgeTerm);
+    };
+
+    const handleDownloadSched = () => {
+        const success = downloadSchedule(filteredSchedules);
+        if (!success) toast.warning("Không có lịch xét xử!");
+    };
+
     return (
-        <div style={{ maxWidth: "100%", margin: "0 auto", padding: "20px", backgroundSize: "cover", backgroundRepeat: "no-repeat", backgroundPosition: "center" }}>
-            <h1 style={{ textAlign: "center", fontSize: "40px" }}>
-                Lịch Đăng Ký Phiên Xét Xử - {MONTHS[filterMonth]} {filterYear}
-            </h1>
-
-            {/* Chọn tháng & năm lọc */}
-            <div style={{ marginBottom: "10px", display: "flex", gap: "10px", justifyContent: "center", alignItems: "center" }}>
-                <label>Chọn tháng: </label>
-                <select value={filterMonth} onChange={e => setFilterMonth(parseInt(e.target.value))} style={{ padding: "5px" }}>
-                    {MONTHS.map((m, idx) => <option key={idx} value={idx}>{m}</option>)}
-                </select>
-
-                <label>Chọn năm: </label>
-                <select value={filterYear} onChange={e => setFilterYear(parseInt(e.target.value))} style={{ padding: "5px" }}>
-                    {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
-                </select>
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", marginBottom: "10px" }}>
-                <span style={{ marginRight: "10px" }}>👤 Xin chào, <strong>{judgeName?.toUpperCase()}</strong></span>
-                <button
-                    onClick={handleChangePassword}
-                    style={{ backgroundColor: "#2196f3", color: "white", border: "none", padding: "6px 12px", borderRadius: "4px", cursor: "pointer", marginRight: "8px" }}>
-                    Đổi mật khẩu
-                </button>
-                <button
-                    onClick={handleLogout}
-                    style={{ backgroundColor: "#f44336", color: "white", border: "none", padding: "6px 12px", borderRadius: "4px", cursor: "pointer" }}>
-                    Đăng xuất
-                </button>
-            </div>
-
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", textAlign: "center", fontWeight: "bold" }}>
-                {WEEKDAYS.map(day => <div key={day}>{day}</div>)}
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "4px" }}>
-                {calendarDays.map((day, idx) => {
-                    if (!day) return <div key={`empty-${idx}`}></div>;
-                    const dateStr = formatDate(day);
-                    const dayEvents = getDaySchedule(dateStr);
-                    return (
-                        <div key={`day-${day}`}
-                            style={{
-                                border: "1px solid #ccc",
-                                padding: "6px",
-                                minHeight: "100px",
-                                backgroundColor: isToday(day) ? "#4bd943ff" : isPastDayOrToDay(day) ? "#ddd" : "#a5c8ebff",
-                                cursor: isPastDayOrToDay(day) ? "not-allowed" : "pointer"
-                            }}
-                            onClick={() => {
-                                if (!isPastDayOrToDay(day)) openRegisterModal(dateStr);
-                            }}
-                        >
-                            <div style={{ fontWeight: "bold", marginBottom: "4px" }}>{day}</div>
-                            {dayEvents.map((ev, i) => {
-                                const eventDate = new Date(ev.date);
-                                eventDate.setHours(0, 0, 0, 0);
-                                const now = new Date();
-                                now.setHours(0, 0, 0, 0);
-                                const isFuture = eventDate > now;
-
-                                return (
-                                    <div key={i} style={{
-                                        fontSize: "12px",
-                                        backgroundColor: ev.user?.username === judgeName ? "#55d099ff" : "#bfc4b7ff",
-                                        padding: "2px 4px",
-                                        margin: "2px 0",
-                                        borderRadius: "4px",
-                                        display: "flex",
-                                        justifyContent: "space-between",
-                                        alignItems: "center"
-                                    }}>
-                                        <span>{ev.room} - {ev.shift}</span><br />
-                                        <span style={{ fontStyle: "italic" }}>{ev.user?.username || "?"}</span>
-                                        {/* {ev.user?.username === judgeName && isFuture && (
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleDelete(ev);
-                                            }}
-                                            style={{ float: "right", border: "none", background: "none", color: "red" }}
-                                        >
-                                            ❌
-                                        </button>
-                                    )} */}
-                                        {ev.user?.username === judgeName && isFuture && (
-                                            <>
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleEdit(ev); // Thêm hàm này
-                                                    }}
-                                                    style={{ float: "right", border: "none", background: "none", color: "blue" }}
-                                                >
-                                                    ✏️
-                                                </button>
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleDelete(ev);
-                                                    }}
-                                                    style={{ float: "right", border: "none", background: "none", color: "red" }}
-                                                >
-                                                    ❌
-                                                </button>
-                                            </>
-                                        )}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    );
-                })}
-            </div>
-
-            {/* Modal đổi mật khẩu */}
-            {isChangePasswordOpen && (
-                <div style={{
-                    position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: "rgba(0,0,0,0.3)", display: "flex",
-                    justifyContent: "center", alignItems: "center", zIndex: 9999
-                }}>
-                    <div style={{
-                        background: "white", padding: "24px", borderRadius: "8px",
-                        minWidth: "320px", boxShadow: "0 2px 8px rgba(0,0,0,0.2)"
-                    }}>
-                        <h3 style={{ marginBottom: "16px" }}>Đổi mật khẩu</h3>
-                        <div style={{ marginBottom: "10px" }}>
-                            <label>Mật khẩu cũ:</label>
-                            <input
-                                type="password"
-                                value={oldPassword}
-                                onChange={e => setOldPassword(e.target.value)}
-                                style={{ width: "100%", padding: "6px", marginTop: "4px" }}
-                            />
-                        </div>
-                        <div style={{ marginBottom: "10px" }}>
-                            <label>Mật khẩu mới:</label>
-                            <input
-                                type="password"
-                                value={newPassword}
-                                onChange={e => setNewPassword(e.target.value)}
-                                style={{ width: "100%", padding: "6px", marginTop: "4px" }}
-                            />
-                        </div>
-                        <div style={{ marginBottom: "10px" }}>
-                            <label>Xác nhận mật khẩu mới:</label>
-                            <input
-                                type="password"
-                                value={confirmPassword}
-                                onChange={e => setConfirmPassword(e.target.value)}
-                                style={{ width: "100%", padding: "6px", marginTop: "4px" }}
-                            />
-                        </div>
-                        <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "16px" }}>
-                            <button onClick={submitChangePassword} style={{ backgroundColor: "#2196f3", color: "white", border: "none", padding: "6px 12px", borderRadius: "4px" }}>
-                                Đổi mật khẩu
-                            </button>
-                            <button onClick={() => setIsChangePasswordOpen(false)} style={{ backgroundColor: "#ccc", border: "none", padding: "6px 12px", borderRadius: "4px" }}>
-                                Hủy
-                            </button>
-                        </div>
-                    </div>
+        <div className="calendar-page-container">
+            {loading && (
+                <div className="loading-overlay">
+                    <div className="spinner"></div>
                 </div>
             )}
+            <CalendarHeader
+                filterMonth={filterMonth} setFilterMonth={setFilterMonth}
+                filterYear={filterYear} setFilterYear={setFilterYear}
+                judgeName={judgeName}
+                onLogout={handleLogout}
+                onChangePassword={handleChangePassword}
+            />
 
+            <CalendarGrid
+                calendarDays={calendarDays}
+                isToday={isToday}
+                isPastDayOrToDay={isPastDayOrToDay}
+                formatDate={formatDateStr}
+                getDaySchedule={getDaySchedule}
+                openRegisterModal={openRegisterModal}
+                handleEdit={handleEdit}
+                handleDelete={handleDelete}
+                judgeName={judgeName}
+            />
 
-            {/* Modal */}
-            {isModalOpen && (
-                <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.3)", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                    <div style={{ background: "white", padding: "20px", borderRadius: "8px", width: "300px" }}>
-                        <h3>Đăng ký phiên xử</h3>
-                        <p><strong>Ngày xét xử:</strong> {selectedDate}</p>
-                        <div>
-                            <label>Hội trường xét xử:</label>
-                            <select value={selectedRoom} onChange={(e) => setSelectedRoom(e.target.value)} style={{ width: "100%" }}>
-                                <option value="">Chọn hội trường xét xử</option>
-                                {ROOMS.map(r => <option key={r} value={r}>{r}</option>)}
-                            </select>
-                        </div>
-                        <div style={{ marginTop: "10px" }}>
-                            <label>Buổi xét xử:</label>
-                            <select value={selectedShift} onChange={(e) => setSelectedShift(e.target.value)} style={{ width: "100%" }}>
-                                <option value="">Chọn buổi xét xử</option>
-                                {SHIFTS.map(s => <option key={s} value={s}>{s}</option>)}
-                            </select>
-                        </div>
+            <ChangePasswordModal
+                isOpen={isChangePasswordOpen}
+                oldPassword={oldPassword} setOldPassword={setOldPassword}
+                newPassword={newPassword} setNewPassword={setNewPassword}
+                confirmPassword={confirmPassword} setConfirmPassword={setConfirmPassword}
+                submitChangePassword={submitChangePassword}
+                onClose={() => setIsChangePasswordOpen(false)}
+            />
 
-                        <div className="row mt-2">
-                            <div className="col-md-6">
-                                <label>Giờ bắt đầu:</label>
-                                <input
-                                    type="time"
-                                    className="form-control"
-                                    value={startTime}
-                                    onChange={(e) => setStartTime(e.target.value)}
-                                />
-                            </div>
+            <RegisterModal
+                isOpen={isModalOpen}
+                selectedDate={selectedDate}
+                selectedRoom={selectedRoom} setSelectedRoom={setSelectedRoom}
+                selectedShift={selectedShift} setSelectedShift={setSelectedShift}
+                startTime={startTime} setStartTime={setStartTime}
+                endTime={endTime} setEndTime={setEndTime}
+                selectedJurors={selectedJurors} setSelectedJurors={setSelectedJurors}
+                litigant={litigant} setLitigant={setLitigant}
+                dispute_relationship={dispute_relationship} setDispute_relationship={setDispute_relationship}
+                note={note} setNote={setNote}
+                handleRegister={handleRegister}
+                onClose={() => setIsModalOpen(false)}
+            />
 
-                            <div className="col-md-6">
-                                <label>Giờ kết thúc:</label>
-                                <input
-                                    type="time"
-                                    className="form-control"
-                                    value={endTime}
-                                    onChange={(e) => setEndTime(e.target.value)}
-                                />
-                            </div>
-                        </div>
+            <JudgeStatsTable
+                stats={stats}
+                searchJudgeTerm={searchJudgeTerm}
+                setSearchJudgeTerm={setSearchJudgeTerm}
+                onDownload={handleDownloadStats}
+            />
 
-
-                        <div style={{ marginTop: "10px" }}>
-                            <label>Hội thẩm:</label>
-                            <select
-                                multiple
-                                value={selectedJurors}
-                                onChange={(e) => {
-                                    const values = Array.from(e.target.selectedOptions, option => option.value);
-                                    setSelectedJurors(values);
-                                }}
-                                style={{ width: "100%", height: "100px" }}
-                            >
-                                {JUROR.map(s => (
-                                    <option key={s} value={s}>{s}</option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div className="form-group">
-                            <label>Đương sự:</label>
-                            <textarea
-                                className="form-control"
-                                value={litigant}
-                                onChange={(e) => setLitigant(e.target.value)}
-                            />
-
-                        </div><div className="form-group">
-                            <label>Quan hệ tranh chấp:</label>
-                            <textarea
-                                className="form-control"
-                                value={dispute_relationship}
-                                onChange={(e) => setDispute_relationship(e.target.value)}
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Ghi chú:</label>
-                            <textarea
-                                className="form-control"
-                                value={note}
-                                onChange={(e) => setNote(e.target.value)}
-                            />
-                        </div>
-                        <div style={{ marginTop: "15px", display: "flex", justifyContent: "space-between" }}>
-                            <button onClick={handleRegister}>Đăng ký</button>
-                            <button onClick={() => setIsModalOpen(false)}>Hủy</button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            <div style={{ marginTop: "40px" }}>
-                <h3>📋 Danh sách lịch xét xử từng thẩm phán trong tháng</h3>
-                <button onClick={handleDownloadJudgeStats} style={{ marginBottom: "10px" }}>⬇️ Tải về bảng Excel</button>
-                <input
-                    type="text"
-                    placeholder="🔍 Tìm kiếm theo thẩm phán"
-                    value={searchJudgeTerm}
-                    onChange={(e) => setSearchJudgeTerm(e.target.value)}
-                    style={{ padding: "8px", width: "100%", marginBottom: "10px" }}
-                />
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                    <thead>
-                        <tr style={{ backgroundColor: "#38b9ecff" }}>
-                            <th style={thStyle}>Thẩm phán</th>
-                            <th style={thStyle}>Đã hoàn thành</th>
-                            <th style={thStyle}>Chưa hoàn thành</th>
-                            <th style={thStyle}>Tổng đăng ký</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {Object.entries(stats)
-                            .filter(([name]) => name.toLowerCase().includes(searchJudgeTerm.toLowerCase()))
-                            .map(([name, data], idx) => (
-                                <tr key={idx}>
-                                    <td style={tdStyle}>{name}</td>
-                                    <td style={tdStyle}>{data.done}</td>
-                                    <td style={tdStyle}>{data.pending}</td>
-                                    <td style={tdStyle}>{data.total}</td>
-                                </tr>
-                            ))}
-                    </tbody>
-                </table>
-            </div>
-
-            <div style={{ marginTop: "40px" }}>
-                <h3>📋 Danh sách lịch xét xử trong tháng</h3>
-                <button onClick={handleDownloadSchedule} style={{ marginBottom: "10px" }}>⬇️ Tải về bảng Excel</button>
-                <h5>🧾 Tổng số vụ xét xử trong tháng: {filteredSchedules.length} vụ</h5>
-                <input
-                    type="text"
-                    placeholder="🔍 Tìm kiếm theo thẩm phán, hội trường, hội thẩm..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{ padding: "8px", width: "100%", marginBottom: "10px" }}
-                />
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                    <thead>
-                        <tr style={{ backgroundColor: "#38b9ecff" }}>
-                            <th style={thStyle}>Ngày</th>
-                            <th style={thStyle}>Buổi</th>
-                            <th style={thStyle}>Thời gian</th>
-                            <th style={thStyle}>Hội trường</th>
-                            <th style={thStyle}>Đương sự</th>
-                            <th style={thStyle}>Quan hệ tranh chấp</th>
-                            <th style={thStyle}>Thẩm phán</th>
-                            <th style={thStyle}>Hội thẩm</th>
-                            <th style={thStyle}>Ghi chú</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {[...filteredSchedules]
-                            .sort((a, b) => new Date(a.date) - new Date(b.date)) // Sắp tăng dần theo ngày
-                            .map((item) => (
-                                <tr key={item.id} style={{ borderBottom: "1px solid #ccc" }}>
-                                    <td style={tdStyle}>
-                                        {new Date(item.date).toLocaleDateString("vi-VN")}
-                                    </td>
-                                    <td style={tdStyle}>{item.shift}</td>
-                                    <td style={tdStyle}>{item.start_time}-{item.end_time}</td>
-                                    <td style={tdStyle}>{item.room}</td>
-                                    <td style={tdStyle}>{item.litigant}</td>
-                                    <td style={tdStyle}>{item.dispute_relationship}</td>
-                                    <td style={tdStyle}>{item.user?.username}</td>
-                                    <td style={tdStyle}>
-                                        {Array.isArray(item.jurors) ? item.jurors.join(", ") : item.jurors}
-                                    </td>
-                                    <td style={tdStyle}>{item.note || ""}</td>
-                                </tr>
-                            ))}
-                        {filteredSchedules.length === 0 && (
-                            <tr>
-                                <td colSpan="7" style={{ textAlign: "center", padding: "10px" }}>
-                                    Không có lịch phù hợp.
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-
-                </table>
-            </div>
+            <ScheduleListTable
+                filteredSchedules={filteredSchedules}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                onDownload={handleDownloadSched}
+            />
         </div>
     );
 }

@@ -1,16 +1,16 @@
-# app/main.py
 from fastapi import FastAPI
-from app.database import engine, SessionLocal
-from app import models
-from app.routers import users, schedule
+from app.core.database import engine, SessionLocal, Base
+from app.modules.users import models as user_models
+from app.modules.schedule import models as schedule_models
+from app.modules.users import router as users_router
+from app.modules.schedule import router as schedule_router
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
-
 
 app = FastAPI()
 
 # Tạo bảng trong DB nếu chưa có
-models.Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)
 
 # API clear dữ liệu bảng schedules
 @app.delete("/clear-schedules")
@@ -34,8 +34,8 @@ def add_columns():
         return {"message": "✅ Columns dispute_relationship & litigant added"}
     finally:
         db.close()
-app.include_router(users.router)
-app.include_router(schedule.router)
+app.include_router(users_router.router)
+app.include_router(schedule_router.router)
 
 origins = [
     "http://localhost",
