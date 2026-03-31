@@ -55,6 +55,23 @@ export const JUROR = [
     "Nguyễn Thị Hằng",
     "Trần Thị Tuyết Nga",
     "Nguyễn Thị Út",
-    "Trương Hữu Phước"
+    "Trương Hữu Phước",
+
+    // New
+    "Trần Thanh Hùng",
+    "Lê Thị Hồng Vân",
+    "Phạm Hữu Hiệp",
+    "Trần Mỹ Huyền",
+    "Nguyễn Thị Ngọc Tuyết",
+    "Nguyễn Quế Hào",
+    "Nguyễn Thị Hồng Phượng",
+    "Lê Minh Mẫn",
+    "Nguyễn Trọng Trí",
+    "Mai Văn Trí",
+    "Nguyễn Minh Trí",
+    "Nguyễn Thành Tài",
+    "Nguyễn Thị Diệu Phước",
+    "Lê Anh Vũ",
+    "Huỳnh Hữu Phi"
 ];
 export const YEARS = Array.from({ length: 11 }, (_, i) => 2020 + i);

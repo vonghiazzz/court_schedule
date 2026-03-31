@@ -75,7 +75,21 @@ class JurorEnum(str, Enum):
     J51 = "Trần Thị Tuyết Nga"
     J52 = "Nguyễn Thị Út"
     J53 = "Trương Hữu Phước"
-
+    J54 = "Trần Thanh Hùng"
+    J55 = "Lê Thị Hồng Vân"
+    J56 = "Phạm Hữu Hiệp"
+    J57 = "Trần Mỹ Huyền"
+    J58 = "Nguyễn Thị Ngọc Tuyết"
+    J59 = "Nguyễn Quế Hào"
+    J60 = "Nguyễn Thị Hồng Phượng"
+    J61 = "Lê Minh Mẫn"
+    J62 = "Nguyễn Trọng Trí"
+    J63 = "Mai Văn Trí"
+    J64 = "Nguyễn Minh Trí"
+    J65 = "Nguyễn Thành Tài"
+    J66 = "Nguyễn Thị Diệu Phước"
+    J67 = "Lê Anh Vũ"
+    J68 = "Huỳnh Hữu Phi"
 class ScheduleCreate(BaseModel):
     date: str                   
     room: RoomEnum             

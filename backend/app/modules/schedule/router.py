@@ -30,8 +30,8 @@ def create_schedule(
         
     ).all()
 
-    if len(same_slot) >= 2:
-        raise HTTPException(status_code=400, detail="Mỗi buổi chỉ được đăng ký 2 hội trường!")
+    if len(same_slot) >= 6:
+        raise HTTPException(status_code=400, detail="Mỗi buổi chỉ được đăng ký 6 hội trường!")
     
     # Kiểm tra có lịch trùng không
     conflict = db.query(models.Schedule).filter(
