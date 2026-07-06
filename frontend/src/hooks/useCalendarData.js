@@ -9,7 +9,12 @@ export const useCalendarData = (currentDate, filterMonth, filterYear, searchTerm
     const fetchSchedule = useCallback(async (silent = false) => {
         if (!silent) setLoading(true);
         try {
-            const res = await api.get("/schedule");
+            const res = await api.get("/schedule", {
+                params: {
+                    month: filterMonth + 1,
+                    year: filterYear
+                }
+            });
             setSchedule(res.data);
         } catch (err) {
             console.error("Lỗi tải lịch:", err);
@@ -17,7 +22,7 @@ export const useCalendarData = (currentDate, filterMonth, filterYear, searchTerm
         } finally {
             if (!silent) setLoading(false);
         }
-    }, []);
+    }, [filterMonth, filterYear]);
 
     useEffect(() => {
         fetchSchedule(); // Initial load (not silent)

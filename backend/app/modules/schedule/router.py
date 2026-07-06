@@ -80,9 +80,24 @@ def create_schedule(
     db.refresh(new_schedule)
     return new_schedule
 
+from typing import Optional
+
 @router.get("", response_model=List[schemas.ScheduleOut])
-def get_all_schedules(db: Session = Depends(get_db)):
-    return db.query(models.Schedule).all()
+def get_all_schedules(
+    month: Optional[int] = None,
+    year: Optional[int] = None,
+    db: Session = Depends(get_db)
+):
+    query = db.query(models.Schedule)
+    if month is not None and year is not None:
+        # Lọc theo tháng và năm (định dạng YYYY-MM-DD trong DB)
+        month_str = f"{year}-{month:02d}-%"
+        query = query.filter(models.Schedule.date.like(month_str))
+    elif year is not None:
+        year_str = f"{year}-%"
+        query = query.filter(models.Schedule.date.like(year_str))
+        
+    return query.all()
 
 @router.delete("/{schedule_id}")
 def delete_schedule(
