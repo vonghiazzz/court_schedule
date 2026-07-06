@@ -22,7 +22,7 @@ export default function JudgeStats({ judgeName, onLogout }) {
     const [searchJudgeTerm, setSearchJudgeTerm] = useState("");
 
     // Fetch calendar statistics
-    const { schedule, stats, fetchSchedule, loading } = useCalendarData(
+    const { schedule, stats, loading } = useCalendarData(
         currentDate, filterMonth, filterYear, ""
     );
 

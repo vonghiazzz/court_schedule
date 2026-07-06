@@ -71,9 +71,6 @@ export default function JudgeOverview({ judgeName, onLogout }) {
         }
     };
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
     // 1. KPI Calculations
     const totalTrials = schedule.length;
     
@@ -82,10 +79,11 @@ export default function JudgeOverview({ judgeName, onLogout }) {
     }, [schedule, judgeName]);
 
     const completedTrials = useMemo(() => {
-        return schedule.filter(s => new Date(s.date) < today).length;
-    }, [schedule, today]);
+        const todayNoTime = new Date();
+        todayNoTime.setHours(0, 0, 0, 0);
+        return schedule.filter(s => new Date(s.date) < todayNoTime).length;
+    }, [schedule]);
 
-    const pendingTrials = totalTrials - completedTrials;
     const completionRate = totalTrials > 0 ? Math.round((completedTrials / totalTrials) * 100) : 0;
 
     // 2. Room Utilization calculations
@@ -107,11 +105,13 @@ export default function JudgeOverview({ judgeName, onLogout }) {
 
     // 3. Next 5 Upcoming Trials
     const upcomingTrials = useMemo(() => {
+        const todayNoTime = new Date();
+        todayNoTime.setHours(0, 0, 0, 0);
         return [...schedule]
-            .filter(s => new Date(s.date) >= today)
+            .filter(s => new Date(s.date) >= todayNoTime)
             .sort((a, b) => new Date(a.date) - new Date(b.date))
             .slice(0, 5);
-    }, [schedule, today]);
+    }, [schedule]);
 
     return (
         <Layout 

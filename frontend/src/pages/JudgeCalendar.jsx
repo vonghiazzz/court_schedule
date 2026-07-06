@@ -36,12 +36,9 @@ export default function JudgeScheduleCalendar({ judgeName, onLogout }) {
     const [currentDate] = useState(new Date());
     const [filterMonth, setFilterMonth] = useState(currentDate.getMonth());
     const [filterYear, setFilterYear] = useState(currentDate.getFullYear());
-    const [searchTerm, setSearchTerm] = useState("");
-
-
     // Hook for data logic
-    const { schedule, filteredSchedules, stats, fetchSchedule, loading } = useCalendarData(
-        currentDate, filterMonth, filterYear, searchTerm
+    const { schedule, fetchSchedule, loading } = useCalendarData(
+        currentDate, filterMonth, filterYear, ""
     );
 
     // Modal & Form State

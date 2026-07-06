@@ -1,7 +1,6 @@
 // src/components/Layout.jsx
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { toast } from 'react-toastify';
 
 const getInitials = (name) => {
     if (!name) return "JD";

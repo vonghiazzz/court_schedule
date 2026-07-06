@@ -22,7 +22,7 @@ export default function JudgeManagement({ judgeName, onLogout }) {
     const [searchTerm, setSearchTerm] = useState("");
 
     // Fetch calendar statistics & schedules list
-    const { filteredSchedules, fetchSchedule, loading } = useCalendarData(
+    const { filteredSchedules, loading } = useCalendarData(
         currentDate, filterMonth, filterYear, searchTerm
     );
 
