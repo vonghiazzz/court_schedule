@@ -1,27 +1,117 @@
-# Environment
+# ==========================================
+# 🔐 Môi trường & Bảo mật (Secrets & Environments)
+# ==========================================
 .env
+.env.*.local
+.env.local
 backend/.env
 frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
 
-# Python
+# ==========================================
+# 🐍 Python (Backend FastAPI)
+# ==========================================
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Môi trường ảo (Virtual Environments)
 venv/
 .venv/
 env/
 .env/
+ENV/
+pip-selfcheck.json
 
-# Node
+# Testing & Linting
+.cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.coverage
+.coverage.*
+nosetests.xml
+coverage.xml
+*.cover
+htmlcov/
+
+# ==========================================
+# 📦 Node & React (Frontend)
+# ==========================================
 node_modules/
 frontend/node_modules/
-build/
 frontend/build/
+frontend/dist/
 .eslintcache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.yarn-state.yml
+.yarn/cache/
+.yarn/unplugged/
+.yarn/install-state.gz
 
-# Docker
-.dockerignore
+# ==========================================
+# 💻 IDEs & Công cụ lập trình (Editor Settings)
+# ==========================================
+# VS Code
+.vscode/
+!.vscode/extensions.json
+*.code-workspace
+.history/
 
-# OS
+# JetBrains (PyCharm, WebStorm, Intellij IDEA)
+.idea/
+*.iws
+out/
+cmake-build-*/
+
+# Xcode / Mac OS
 .DS_Store
+.DS_Store?
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
 Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ==========================================
+# 🗄️ Database & Docker (Local storage)
+# ==========================================
+postgres_data/
+pg_data/
+docker-compose.override.yml

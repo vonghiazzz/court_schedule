@@ -18,7 +18,7 @@ import ScheduleListTable from "../components/Calendar/ScheduleListTable";
 // Styles
 import "../styles/JudgeCalendar.css";
 
-export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }) {
+export default function JudgeScheduleCalendar({ judgeName, onLogout }) {
     const navigate = useNavigate();
     const [currentDate] = useState(new Date());
     const [filterMonth, setFilterMonth] = useState(currentDate.getMonth());
@@ -192,14 +192,15 @@ export default function JudgeScheduleCalendar({ judgeName, onLogoutPropsChange }
 
     const handleLogout = () => {
         if (!window.confirm("Bạn có chắc chắn muốn đăng xuất?")) return;
-        localStorage.removeItem("token");
-        localStorage.removeItem("username");
-        if (onLogoutPropsChange) {
-            onLogoutPropsChange.setToken(null);
-            onLogoutPropsChange.setUsername(null);
+        if (onLogout) {
+            onLogout();
+        } else {
+            localStorage.removeItem("token");
+            localStorage.removeItem("refresh_token");
+            localStorage.removeItem("username");
+            toast.success("Đăng xuất thành công!");
+            navigate('/login');
         }
-        toast.success("Đăng xuất thành công!");
-        navigate('/login');
     };
 
     // Calendar Helper Functions

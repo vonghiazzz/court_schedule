@@ -1,5 +1,5 @@
 import datetime
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, Depends, HTTPException, Body, Response, Cookie
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from app.modules.users import models, schemas
@@ -31,13 +31,69 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return new_user
 
 @router.post("/login", response_model=auth_schemas.Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.username == form_data.username).first()
     if not user or not auth_service.verify_password(form_data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Sai thông tin đăng nhập")
     
     access_token = auth_service.create_access_token(data={"sub": user.username})
-    return {"access_token": access_token, "token_type": "bearer"}
+    refresh_token = auth_service.create_refresh_token(data={"sub": user.username})
+    
+    import os
+    is_production = "render.com" in os.getenv("DATABASE_URL", "") or os.getenv("APP_ENV") == "production"
+    
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=is_production,
+        samesite="lax",
+        max_age=7 * 24 * 3600
+    )
+    
+    return {
+        "access_token": access_token,
+        "token_type": "bearer"
+    }
+
+@router.post("/refresh", response_model=auth_schemas.Token)
+def refresh(response: Response, refresh_token: str = Cookie(None), db: Session = Depends(get_db)):
+    if not refresh_token:
+        raise HTTPException(status_code=401, detail="Không tìm thấy token làm mới")
+        
+    username = auth_service.verify_refresh_token(refresh_token)
+    user = db.query(models.User).filter(models.User.username == username).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="Không xác thực được người dùng")
+    
+    access_token = auth_service.create_access_token(data={"sub": user.username})
+    new_refresh_token = auth_service.create_refresh_token(data={"sub": user.username})
+    
+    import os
+    is_production = "render.com" in os.getenv("DATABASE_URL", "") or os.getenv("APP_ENV") == "production"
+    
+    response.set_cookie(
+        key="refresh_token",
+        value=new_refresh_token,
+        httponly=True,
+        secure=is_production,
+        samesite="lax",
+        max_age=7 * 24 * 3600
+    )
+    
+    return {
+        "access_token": access_token,
+        "token_type": "bearer"
+    }
+
+@router.post("/logout")
+def logout(response: Response):
+    response.delete_cookie(
+        key="refresh_token",
+        httponly=True,
+        samesite="lax"
+    )
+    return {"msg": "Đăng xuất thành công"}
 
 
 @router.get("/me", response_model=schemas.UserOut)
