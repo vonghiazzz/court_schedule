@@ -3,6 +3,9 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import Login from './pages/Login'
 import JudgeCalendar from './pages/JudgeCalendar'
+import JudgeStats from './pages/JudgeStats'
+import JudgeManagement from './pages/JudgeManagement'
+import JudgeOverview from './pages/JudgeOverview'
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -96,7 +99,7 @@ function App() {
   const handleLoginSuccess = () => {
     setTimeout(() => {
       toast.success("Đăng nhập thành công!");
-      window.location.href = "/lich-tham-phan";
+      window.location.href = "/tong-quan";
     }, 2000);
   };
 
@@ -105,16 +108,34 @@ function App() {
       <ToastContainer position="top-right" autoClose={3000} />
 
       <Routes>
-        {/* Trang mặc định → nếu đã đăng nhập thì vào schedule, chưa thì login */}
-        <Route path="/" element={token ? <Navigate to="/lich-tham-phan" /> : <Login onLoginSuccess={handleLoginSuccess} />} />
+        {/* Trang mặc định → nếu đã đăng nhập thì vào tổng quan, chưa thì login */}
+        <Route path="/" element={token ? <Navigate to="/tong-quan" /> : <Login onLoginSuccess={handleLoginSuccess} />} />
 
         {/* Trang đăng nhập */}
         <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
+
+        {/* Trang tổng quan của hệ thống */}
+        <Route
+          path="/tong-quan"
+          element={token ? <JudgeOverview judgeName={username} onLogout={handleLogout} /> : <Navigate to="/login" />}
+        />
 
         {/* Trang lịch dạng vạn niên của thẩm phán */}
         <Route
           path="/lich-tham-phan"
           element={token ? <JudgeCalendar judgeName={username} onLogout={handleLogout} /> : <Navigate to="/login" />}
+        />
+
+        {/* Trang thống kê phiên xử của các thẩm phán */}
+        <Route
+          path="/thong-ke-phien-xu"
+          element={token ? <JudgeStats judgeName={username} onLogout={handleLogout} /> : <Navigate to="/login" />}
+        />
+
+        {/* Trang quản lý danh sách phiên tòa trong tháng */}
+        <Route
+          path="/quan-ly-phien-toa"
+          element={token ? <JudgeManagement judgeName={username} onLogout={handleLogout} /> : <Navigate to="/login" />}
         />
       </Routes>
     </BrowserRouter>

@@ -122,3 +122,37 @@
         transform: rotate(360deg);
     }
 }
+
+/* Custom Calendar Layout Styles from Mockup */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    border-top: 1px solid #E2E4E6;
+    border-left: 1px solid #E2E4E6;
+}
+.calendar-cell {
+    min-height: 180px;
+    border-right: 1px solid #E2E4E6;
+    border-bottom: 1px solid #E2E4E6;
+    transition: background-color 0.2s;
+}
+.calendar-cell:hover {
+    background-color: rgba(248, 249, 250, 0.8);
+}
+.scroll-custom::-webkit-scrollbar {
+    width: 4px;
+}
+.scroll-custom::-webkit-scrollbar-track {
+    background: transparent;
+}
+.scroll-custom::-webkit-scrollbar-thumb {
+    background: #E2E4E6;
+    border-radius: 10px;
+}
+
+@media (max-width: 1024px) {
+    .calendar-cell {
+        min-height: 65px !important;
+        padding: 4px !important;
+    }
+}

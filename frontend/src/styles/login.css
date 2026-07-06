@@ -1,0 +1,432 @@
+/* login.css */
+
+/* Custom fonts & CSS Variables */
+:root {
+  --primary: #000e24;
+  --judicial-navy: #00234B;
+  --gavel-gold: #B89B5E;
+  --surface: #f4f6f8;
+  --seal-silver: #E2E4E6;
+  --on-surface-variant: #43474e;
+  --outline: #74777f;
+  --primary-fixed: #d6e3ff;
+}
+
+/* Base Body Styles */
+.login-body {
+  font-family: 'Public Sans', sans-serif;
+  background-color: var(--surface);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Material Symbols config */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Header styles */
+.login-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #ffffff;
+  border-bottom: 1px solid var(--seal-silver);
+  z-index: 50;
+  box-sizing: border-box;
+}
+
+.login-header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  box-sizing: border-box;
+}
+
+.login-logo-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.login-logo {
+  height: 38px;
+  width: 38px;
+  object-fit: contain;
+}
+
+.login-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--judicial-navy);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: -0.2px;
+}
+
+.login-header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.lang-selector {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.lang-selector:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.lang-text {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #495057;
+}
+
+.help-icon {
+  color: #6c757d;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.help-icon:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+/* Main content wrapper */
+.login-main {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 20px 60px 20px;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.architecture-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -10;
+  opacity: 0.06;
+  background-size: cover;
+  background-position: center;
+  mix-blend-mode: multiply;
+}
+
+/* Centered card */
+.login-card {
+  width: 100%;
+  max-width: 440px;
+  background: #ffffff;
+  border: 1px solid var(--seal-silver);
+  border-radius: 8px;
+  box-shadow: 0px 8px 30px rgba(0, 35, 75, 0.07);
+  overflow: hidden;
+  position: relative;
+  z-index: 10;
+}
+
+.login-card-strip {
+  height: 5px;
+  background: var(--judicial-navy);
+}
+
+.login-card-body {
+  padding: 35px 40px;
+}
+
+.login-card-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.login-card-logo {
+  height: 70px;
+  width: 70px;
+  margin-bottom: 12px;
+  object-fit: contain;
+}
+
+.login-card-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--judicial-navy);
+  margin: 0 0 4px 0;
+}
+
+.login-card-subtitle {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin: 0;
+}
+
+/* Form items styling */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.form-label-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.form-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--judicial-navy);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.form-link {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gavel-gold);
+  text-decoration: none;
+}
+
+.form-link:hover {
+  text-decoration: underline;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #adb5bd;
+  pointer-events: none;
+  font-size: 1.25rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 11px 12px 11px 38px;
+  font-size: 0.875rem;
+  color: #212529;
+  border: 1px solid var(--seal-silver);
+  border-radius: 4px;
+  outline: none;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  border-color: var(--gavel-gold);
+  box-shadow: 0 0 0 3px rgba(184, 155, 94, 0.15);
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: none;
+  color: #adb5bd;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.password-toggle:hover {
+  color: var(--judicial-navy);
+}
+
+/* Security Banner */
+.security-notice {
+  display: flex;
+  gap: 10px;
+  background: #f8f9fa;
+  padding: 10px 12px;
+  border-left: 4px solid var(--gavel-gold);
+  border-radius: 3px;
+  margin-bottom: 22px;
+  box-sizing: border-box;
+}
+
+.security-icon {
+  color: var(--gavel-gold);
+  font-size: 1.1rem;
+}
+
+.security-text {
+  font-size: 0.72rem;
+  color: #6c757d;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Buttons styling */
+.login-btn {
+  width: 100%;
+  background: var(--judicial-navy);
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.login-btn:hover {
+  background: #001530;
+}
+
+.login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* VNeID Integration */
+.vneid-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 20px 0 16px 0;
+}
+
+.vneid-divider::before,
+.vneid-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--seal-silver);
+}
+
+.vneid-divider-text {
+  padding: 0 10px;
+  font-size: 0.72rem;
+  color: #6c757d;
+}
+
+.vneid-btn {
+  width: 100%;
+  background: #ffffff;
+  color: #212529;
+  border: 1px solid #212529;
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.vneid-btn:hover {
+  background: #f8f9fa;
+  border-color: #000000;
+}
+
+.vneid-logo {
+  height: 16px;
+  object-fit: contain;
+}
+
+/* Footer layout */
+.login-footer {
+  background: #ffffff;
+  border-top: 1px solid var(--seal-silver);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.login-footer-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 16px 24px;
+  font-size: 0.75rem;
+  color: #6c757d;
+  box-sizing: border-box;
+}
+
+.footer-links {
+  display: flex;
+  gap: 18px;
+}
+
+.footer-link {
+  color: #6c757d;
+  text-decoration: none;
+}
+
+.footer-link:hover {
+  color: var(--judicial-navy);
+  text-decoration: underline;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .login-header-container {
+    padding: 10px 16px;
+  }
+  .login-title {
+    font-size: 0.95rem;
+  }
+  .login-header-right {
+    gap: 10px;
+  }
+  .lang-text {
+    display: none;
+  }
+  .login-card-body {
+    padding: 25px 24px;
+  }
+  .login-footer-container {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+    padding: 16px;
+  }
+  .footer-links {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px 15px;
+  }
+}
