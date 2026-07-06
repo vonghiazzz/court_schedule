@@ -233,7 +233,7 @@
 
 .form-input {
   width: 100%;
-  padding: 11px 12px 11px 38px;
+  padding: 11px 12px 11px 38px !important;
   font-size: 0.875rem;
   color: #212529;
   border: 1px solid var(--seal-silver);
