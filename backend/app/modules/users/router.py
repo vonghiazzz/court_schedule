@@ -47,7 +47,7 @@ def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends(), 
         value=refresh_token,
         httponly=True,
         secure=is_production,
-        samesite="lax",
+        samesite="none" if is_production else "lax",
         max_age=7 * 24 * 3600
     )
     
@@ -77,7 +77,7 @@ def refresh(response: Response, refresh_token: str = Cookie(None), db: Session =
         value=new_refresh_token,
         httponly=True,
         secure=is_production,
-        samesite="lax",
+        samesite="none" if is_production else "lax",
         max_age=7 * 24 * 3600
     )
     
@@ -88,10 +88,13 @@ def refresh(response: Response, refresh_token: str = Cookie(None), db: Session =
 
 @router.post("/logout")
 def logout(response: Response):
+    import os
+    is_production = "render.com" in os.getenv("DATABASE_URL", "") or os.getenv("APP_ENV") == "production"
     response.delete_cookie(
         key="refresh_token",
         httponly=True,
-        samesite="lax"
+        secure=is_production,
+        samesite="none" if is_production else "lax"
     )
     return {"msg": "Đăng xuất thành công"}
 
