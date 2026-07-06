@@ -17,5 +17,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app
 
 # Định nghĩa lệnh mặc định để chạy ứng dụng
-# uvicorn sẽ tự đọc biến môi trường khi container chạy
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# uvicorn sẽ chạy dựa trên cổng PORT do Railway/Render cấp (hoặc mặc định là 8000)
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
