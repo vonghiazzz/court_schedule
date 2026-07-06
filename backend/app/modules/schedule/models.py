@@ -6,7 +6,7 @@ from app.core.database import Base
 class Schedule(Base):
     __tablename__ = "schedules"
     id = Column(Integer, primary_key=True, index=True)
-    date = Column(String, nullable=False)
+    date = Column(String, nullable=False, index=True)
     room = Column(String, nullable=False)  
     shift = Column(String, nullable=False) 
     dispute_relationship = Column(String, nullable=False) 
@@ -16,5 +16,5 @@ class Schedule(Base):
     end_time = Column(Time, nullable=False)   
     note = Column(Text, nullable=True)
 
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
     user = relationship("User", back_populates="schedules")

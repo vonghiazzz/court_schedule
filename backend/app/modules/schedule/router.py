@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import List
 from app.modules.schedule import models, schemas
 from app.modules.users import models as users_models
@@ -88,7 +88,7 @@ def get_all_schedules(
     year: Optional[int] = None,
     db: Session = Depends(get_db)
 ):
-    query = db.query(models.Schedule)
+    query = db.query(models.Schedule).options(joinedload(models.Schedule.user))
     if month is not None and year is not None:
         # Lọc theo tháng và năm (định dạng YYYY-MM-DD trong DB)
         month_str = f"{year}-{month:02d}-%"

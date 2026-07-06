@@ -67,7 +67,10 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         raise credentials_exception
 
     db = database.SessionLocal()
-    user = db.query(models.User).filter(models.User.username == username).first()
-    if user is None:
-        raise credentials_exception
-    return user
+    try:
+        user = db.query(models.User).filter(models.User.username == username).first()
+        if user is None:
+            raise credentials_exception
+        return user
+    finally:
+        db.close()
