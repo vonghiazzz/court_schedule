@@ -1,5 +1,5 @@
 import datetime
-from fastapi import APIRouter, Depends, HTTPException, Body, Response, Cookie
+from fastapi import APIRouter, Depends, HTTPException, Body, Response, Cookie, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from app.modules.users import models, schemas
@@ -31,7 +31,7 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return new_user
 
 @router.post("/login", response_model=auth_schemas.Token)
-def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+def login(request: Request, response: Response, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.username == form_data.username).first()
     if not user or not auth_service.verify_password(form_data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Sai thông tin đăng nhập")
@@ -39,16 +39,17 @@ def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends(), 
     access_token = auth_service.create_access_token(data={"sub": user.username})
     refresh_token = auth_service.create_refresh_token(data={"sub": user.username})
     
-    import os
-    is_production = "render.com" in os.getenv("DATABASE_URL", "") or os.getenv("APP_ENV") == "production"
+    # Tự động xác định secure và samesite dựa trên giao thức (HTTP hay HTTPS) của request
+    is_https = request.url.scheme == "https" or request.headers.get("x-forwarded-proto") == "https"
     
     response.set_cookie(
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=is_production,
-        samesite="none" if is_production else "lax",
-        max_age=7 * 24 * 3600
+        secure=is_https,
+        samesite="none" if is_https else "lax",
+        max_age=7 * 24 * 3600,
+        path="/"
     )
     
     return {
@@ -57,7 +58,7 @@ def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends(), 
     }
 
 @router.post("/refresh", response_model=auth_schemas.Token)
-def refresh(response: Response, refresh_token: str = Cookie(None), db: Session = Depends(get_db)):
+def refresh(request: Request, response: Response, refresh_token: str = Cookie(None), db: Session = Depends(get_db)):
     if not refresh_token:
         raise HTTPException(status_code=401, detail="Không tìm thấy token làm mới")
         
@@ -69,16 +70,16 @@ def refresh(response: Response, refresh_token: str = Cookie(None), db: Session =
     access_token = auth_service.create_access_token(data={"sub": user.username})
     new_refresh_token = auth_service.create_refresh_token(data={"sub": user.username})
     
-    import os
-    is_production = "render.com" in os.getenv("DATABASE_URL", "") or os.getenv("APP_ENV") == "production"
+    is_https = request.url.scheme == "https" or request.headers.get("x-forwarded-proto") == "https"
     
     response.set_cookie(
         key="refresh_token",
         value=new_refresh_token,
         httponly=True,
-        secure=is_production,
-        samesite="none" if is_production else "lax",
-        max_age=7 * 24 * 3600
+        secure=is_https,
+        samesite="none" if is_https else "lax",
+        max_age=7 * 24 * 3600,
+        path="/"
     )
     
     return {
@@ -87,14 +88,14 @@ def refresh(response: Response, refresh_token: str = Cookie(None), db: Session =
     }
 
 @router.post("/logout")
-def logout(response: Response):
-    import os
-    is_production = "render.com" in os.getenv("DATABASE_URL", "") or os.getenv("APP_ENV") == "production"
+def logout(request: Request, response: Response):
+    is_https = request.url.scheme == "https" or request.headers.get("x-forwarded-proto") == "https"
     response.delete_cookie(
         key="refresh_token",
         httponly=True,
-        secure=is_production,
-        samesite="none" if is_production else "lax"
+        secure=is_https,
+        samesite="none" if is_https else "lax",
+        path="/"
     )
     return {"msg": "Đăng xuất thành công"}
 

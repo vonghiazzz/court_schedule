@@ -62,8 +62,14 @@ instance.interceptors.response.use(
   async error => {
     const originalRequest = error.config;
 
-    // Check if the response was unauthorized and not retried yet
-    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+    // Check if the response was unauthorized, not retried yet, and not a login request
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      !originalRequest._retry &&
+      originalRequest.url &&
+      !originalRequest.url.includes('/login')
+    ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -90,6 +96,8 @@ instance.interceptors.response.use(
         const { access_token } = res.data;
 
         localStorage.setItem('token', access_token);
+        // Dispatch event để đồng bộ React state trong cùng tab (App.js)
+        window.dispatchEvent(new Event('storage'));
 
         processQueue(null, access_token);
         isRefreshing = false;

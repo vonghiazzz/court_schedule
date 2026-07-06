@@ -35,6 +35,7 @@ function App() {
           // chúng ta sẽ gọi thẳng api /me để kích hoạt luồng tự động làm mới của Axios Interceptor.
           try {
             await api.get('/me');
+            return; // 🟢 Token đã được làm mới thành công ở bước 1, không cần chạy bước 2 nữa
           } catch (err) {
             // Nếu tự động làm mới thất bại (Refresh token hết hạn / không hợp lệ),
             // Axios response interceptor đã tự động xóa token và redirect.
