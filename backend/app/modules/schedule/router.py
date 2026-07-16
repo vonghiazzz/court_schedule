@@ -49,7 +49,9 @@ def create_schedule(
         models.Schedule.date == schedule.date,
     or_(
         models.Schedule.user_id == current_user.id,   # trùng thẩm phán
-        models.Schedule.jurors.op("&&")(schedule.jurors)  # overlap operator của Postgres
+
+        # models.Schedule.jurors.op("&&")(schedule.jurors)  # overlap operator của Postgres
+        models.Schedule.jurors.op("&&")([j.value for j in schedule.jurors])  # overlap operator của Postgres
     ),        
         models.Schedule.start_time < schedule.end_time,
         models.Schedule.end_time > schedule.start_time
