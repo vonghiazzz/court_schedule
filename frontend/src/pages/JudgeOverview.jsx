@@ -3,7 +3,6 @@ import { useNavigate, Link } from 'react-router-dom';
 import api from "../utils/axios";
 import { toast } from "react-toastify";
 import { MONTHS, YEARS } from '../constants';
-import { useCalendarData } from "../hooks/useCalendarData";
 
 // UI Components
 import Layout from "../components/Layout";
@@ -14,20 +13,70 @@ import "../styles/JudgeCalendar.css";
 
 export default function JudgeOverview({ judgeName, onLogout }) {
     const navigate = useNavigate();
-    const [currentDate] = useState(new Date());
-    const [filterMonth, setFilterMonth] = useState(currentDate.getMonth());
-    const [filterYear, setFilterYear] = useState(currentDate.getFullYear());
-
-    // Fetch schedules list for statistics
-    const { schedule, loading } = useCalendarData(
-        currentDate, filterMonth, filterYear, ""
-    );
+    const [reportMode, setReportMode] = useState("month");
+    const [filterMonth, setFilterMonth] = useState(new Date().getMonth());
+    const [filterYear, setFilterYear] = useState(new Date().getFullYear());
+    
+    const getTodayDateString = () => {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    };
+    
+    const [customStartDate, setCustomStartDate] = useState(getTodayDateString());
+    const [customEndDate, setCustomEndDate] = useState(getTodayDateString());
+    const [selectedJudge, setSelectedJudge] = useState("");
+    const [judges, setJudges] = useState([]);
+    const [schedule, setSchedule] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     // Password State
     const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
     const [oldPassword, setOldPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+
+
+
+    // Load judges
+    useEffect(() => {
+        const fetchJudges = async () => {
+            try {
+                const res = await api.get('/users');
+                setJudges(res.data);
+            } catch (err) {
+                console.error("Lỗi tải danh sách thẩm phán:", err);
+            }
+        };
+        fetchJudges();
+    }, []);
+
+    // Fetch report data
+    const fetchReportData = async (silent = false) => {
+        if (!silent) setLoading(true);
+        try {
+            const params = {};
+            if (reportMode === 'month') {
+                params.month = filterMonth + 1;
+                params.year = filterYear;
+            } else if (reportMode === 'custom') {
+                params.start_date = customStartDate;
+                params.end_date = customEndDate;
+            }
+            
+            const res = await api.get("/schedule", { params });
+            setSchedule(res.data);
+        } catch (err) {
+            console.error("Lỗi tải báo cáo tổng quan:", err);
+            if (!silent) toast.error("Không thể tải dữ liệu tổng quan!");
+        } finally {
+            if (!silent) setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchReportData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [reportMode, filterMonth, filterYear, customStartDate, customEndDate]);
 
     useEffect(() => {
         document.title = "Tổng Quan Hệ Thống";
@@ -71,24 +120,36 @@ export default function JudgeOverview({ judgeName, onLogout }) {
         }
     };
 
+    const filteredSchedules = useMemo(() => {
+        let list = [...schedule];
+        if (selectedJudge) {
+            list = list.filter(s => s.user?.username === selectedJudge);
+        }
+        return list;
+    }, [schedule, selectedJudge]);
+
     // 1. KPI Calculations
-    const totalTrials = schedule.length;
+    const totalTrials = filteredSchedules.length;
     
     const myTrials = useMemo(() => {
-        return schedule.filter(s => s.user?.username?.toLowerCase() === judgeName?.toLowerCase()).length;
-    }, [schedule, judgeName]);
+        return filteredSchedules.filter(s => s.user?.username?.toLowerCase() === judgeName?.toLowerCase()).length;
+    }, [filteredSchedules, judgeName]);
 
     const completedTrials = useMemo(() => {
         const todayNoTime = new Date();
         todayNoTime.setHours(0, 0, 0, 0);
-        return schedule.filter(s => new Date(s.date) < todayNoTime).length;
-    }, [schedule]);
+        return filteredSchedules.filter(s => {
+            const parts = s.date.split("-").map(Number);
+            const sDate = new Date(parts[0], parts[1] - 1, parts[2]);
+            return sDate < todayNoTime;
+        }).length;
+    }, [filteredSchedules]);
 
     const completionRate = totalTrials > 0 ? Math.round((completedTrials / totalTrials) * 100) : 0;
 
     // 2. Room Utilization calculations
     const roomStats = useMemo(() => {
-        const rooms = schedule.reduce((acc, s) => {
+        const rooms = filteredSchedules.reduce((acc, s) => {
             if (s.room) {
                 acc[s.room] = (acc[s.room] || 0) + 1;
             }
@@ -99,7 +160,7 @@ export default function JudgeOverview({ judgeName, onLogout }) {
         return Object.entries(rooms)
             .map(([name, count]) => ({ name, count }))
             .sort((a, b) => b.count - a.count);
-    }, [schedule]);
+    }, [filteredSchedules]);
 
     const maxRoomTrials = roomStats.length > 0 ? roomStats[0].count : 1;
 
@@ -107,11 +168,31 @@ export default function JudgeOverview({ judgeName, onLogout }) {
     const upcomingTrials = useMemo(() => {
         const todayNoTime = new Date();
         todayNoTime.setHours(0, 0, 0, 0);
-        return [...schedule]
-            .filter(s => new Date(s.date) >= todayNoTime)
-            .sort((a, b) => new Date(a.date) - new Date(b.date))
+        return [...filteredSchedules]
+            .filter(s => {
+                const parts = s.date.split("-").map(Number);
+                const sDate = new Date(parts[0], parts[1] - 1, parts[2]);
+                return sDate >= todayNoTime;
+            })
+            .sort((a, b) => {
+                const aParts = a.date.split("-").map(Number);
+                const aDate = new Date(aParts[0], aParts[1] - 1, aParts[2]);
+                const bParts = b.date.split("-").map(Number);
+                const bDate = new Date(bParts[0], bParts[1] - 1, bParts[2]);
+                return aDate - bDate;
+            })
             .slice(0, 5);
-    }, [schedule]);
+    }, [filteredSchedules]);
+
+    const getReportTitle = () => {
+        if (reportMode === 'month') {
+            return `${MONTHS[filterMonth]} ${filterYear}`;
+        } else {
+            const startStr = customStartDate.split('-').reverse().join('/');
+            const endStr = customEndDate.split('-').reverse().join('/');
+            return `Từ ${startStr} đến ${endStr}`;
+        }
+    };
 
     return (
         <Layout 
@@ -131,7 +212,7 @@ export default function JudgeOverview({ judgeName, onLogout }) {
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div>
                         <h1 className="font-headline-lg text-headline-lg text-judicial-navy font-bold">
-                            Tổng Quan Hệ Thống - {MONTHS[filterMonth]} {filterYear}
+                            Tổng Quan Hệ Thống - {getReportTitle()}
                         </h1>
                         <nav className="flex items-center gap-2 mt-2 text-caption text-outline">
                             <span>Hệ thống quản lý</span>
@@ -141,25 +222,78 @@ export default function JudgeOverview({ judgeName, onLogout }) {
                     </div>
                     
                     {/* Filter controls */}
-                    <div className="flex items-center gap-3 bg-surface-container-lowest p-2 rounded-lg shadow-sm border border-seal-silver">
+                    <div className="flex flex-wrap items-center gap-3 bg-surface-container-lowest p-3 rounded-xl shadow-sm border border-seal-silver">
                         <div className="flex flex-col gap-1">
-                            <label className="text-[10px] font-bold text-outline uppercase pl-1">Chọn tháng</label>
+                            <label className="text-[10px] font-bold text-outline uppercase pl-1">Chế độ lọc</label>
                             <select 
-                                value={filterMonth} 
-                                onChange={e => setFilterMonth(parseInt(e.target.value))}
-                                className="border-none bg-surface-container-low rounded px-3 py-1 text-body-md focus:ring-2 focus:ring-gavel-gold outline-none"
+                                value={reportMode} 
+                                onChange={e => setReportMode(e.target.value)}
+                                className="border border-seal-silver bg-surface-container-low rounded-lg px-2 py-1 text-body-md focus:ring-2 focus:ring-gavel-gold outline-none font-medium text-judicial-navy"
                             >
-                                {MONTHS.map((m, idx) => <option key={idx} value={idx}>{m}</option>)}
+                                <option value="month">Theo tháng</option>
+                                <option value="custom">Khoảng ngày</option>
                             </select>
                         </div>
+
+                        {reportMode === 'month' && (
+                            <>
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-[10px] font-bold text-outline uppercase pl-1">Chọn tháng</label>
+                                    <select 
+                                        value={filterMonth} 
+                                        onChange={e => setFilterMonth(parseInt(e.target.value))}
+                                        className="border border-seal-silver bg-surface-container-low rounded-lg px-2 py-1 text-body-md focus:ring-2 focus:ring-gavel-gold outline-none"
+                                    >
+                                        {MONTHS.map((m, idx) => <option key={idx} value={idx}>{m}</option>)}
+                                    </select>
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-[10px] font-bold text-outline uppercase pl-1">Chọn năm</label>
+                                    <select 
+                                        value={filterYear} 
+                                        onChange={e => setFilterYear(parseInt(e.target.value))}
+                                        className="border border-seal-silver bg-surface-container-low rounded-lg px-2 py-1 text-body-md focus:ring-2 focus:ring-gavel-gold outline-none"
+                                    >
+                                        {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+                                    </select>
+                                </div>
+                            </>
+                        )}
+
+
+
+                        {reportMode === 'custom' && (
+                            <>
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-[10px] font-bold text-outline uppercase pl-1">Từ ngày</label>
+                                    <input 
+                                        type="date" 
+                                        value={customStartDate} 
+                                        onChange={e => setCustomStartDate(e.target.value)}
+                                        className="border border-seal-silver bg-surface-container-low rounded-lg px-2 py-0.5 text-body-md focus:ring-2 focus:ring-gavel-gold outline-none"
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-[10px] font-bold text-outline uppercase pl-1">Đến ngày</label>
+                                    <input 
+                                        type="date" 
+                                        value={customEndDate} 
+                                        onChange={e => setCustomEndDate(e.target.value)}
+                                        className="border border-seal-silver bg-surface-container-low rounded-lg px-2 py-0.5 text-body-md focus:ring-2 focus:ring-gavel-gold outline-none"
+                                    />
+                                </div>
+                            </>
+                        )}
+
                         <div className="flex flex-col gap-1">
-                            <label className="text-[10px] font-bold text-outline uppercase pl-1">Chọn năm</label>
+                            <label className="text-[10px] font-bold text-outline uppercase pl-1">Chọn thẩm phán</label>
                             <select 
-                                value={filterYear} 
-                                onChange={e => setFilterYear(parseInt(e.target.value))}
-                                className="border-none bg-surface-container-low rounded px-3 py-1 text-body-md focus:ring-2 focus:ring-gavel-gold outline-none"
+                                value={selectedJudge} 
+                                onChange={e => setSelectedJudge(e.target.value)}
+                                className="border border-seal-silver bg-surface-container-low rounded-lg px-2 py-1 text-body-md focus:ring-2 focus:ring-gavel-gold outline-none font-medium text-judicial-navy"
                             >
-                                {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+                                <option value="">Tất cả thẩm phán</option>
+                                {judges.map(j => <option key={j.id} value={j.username}>{j.username}</option>)}
                             </select>
                         </div>
                     </div>

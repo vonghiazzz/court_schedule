@@ -41,6 +41,27 @@ export default function JudgeScheduleCalendar({ judgeName, onLogout }) {
         currentDate, filterMonth, filterYear, ""
     );
 
+    const [selectedJudge, setSelectedJudge] = useState("");
+    const [judges, setJudges] = useState([]);
+
+    // Load judges
+    useEffect(() => {
+        const fetchJudges = async () => {
+            try {
+                const res = await api.get('/users');
+                setJudges(res.data);
+            } catch (err) {
+                console.error("Lỗi tải danh sách thẩm phán:", err);
+            }
+        };
+        fetchJudges();
+    }, []);
+
+    const filteredSchedule = useMemo(() => {
+        if (!selectedJudge) return schedule;
+        return schedule.filter(s => s.user?.username === selectedJudge);
+    }, [schedule, selectedJudge]);
+
     // Modal & Form State
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState(() => {
@@ -237,7 +258,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogout }) {
     for (let d = 1; d <= daysInMonth; d++) calendarDays.push(d);
 
     const formatDateStr = (d) => `${filterYear}-${String(filterMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-    const getDaySchedule = (dateStr) => schedule.filter(s => s.date === dateStr);
+    const getDaySchedule = (dateStr) => filteredSchedule.filter(s => s.date === dateStr);
 
     const isToday = (day) => {
         const today = new Date();
@@ -286,13 +307,13 @@ export default function JudgeScheduleCalendar({ judgeName, onLogout }) {
                     </div>
                     
                     {/* Filter controls */}
-                    <div className="flex items-center gap-3 bg-surface-container-lowest p-2 rounded-lg shadow-sm border border-seal-silver">
+                    <div className="flex flex-wrap items-center gap-3 bg-surface-container-lowest p-3 rounded-xl shadow-sm border border-seal-silver">
                         <div className="flex flex-col gap-1">
                             <label className="text-[10px] font-bold text-outline uppercase pl-1">Chọn tháng</label>
                             <select 
                                 value={filterMonth} 
                                 onChange={e => setFilterMonth(parseInt(e.target.value))}
-                                className="border-none bg-surface-container-low rounded px-3 py-1 text-body-md focus:ring-2 focus:ring-gavel-gold outline-none"
+                                className="border border-seal-silver bg-surface-container-low rounded-lg px-2 py-1 text-body-md focus:ring-2 focus:ring-gavel-gold outline-none font-medium text-judicial-navy"
                             >
                                 {MONTHS.map((m, idx) => <option key={idx} value={idx}>{m}</option>)}
                             </select>
@@ -302,9 +323,20 @@ export default function JudgeScheduleCalendar({ judgeName, onLogout }) {
                             <select 
                                 value={filterYear} 
                                 onChange={e => setFilterYear(parseInt(e.target.value))}
-                                className="border-none bg-surface-container-low rounded px-3 py-1 text-body-md focus:ring-2 focus:ring-gavel-gold outline-none"
+                                className="border border-seal-silver bg-surface-container-low rounded-lg px-2 py-1 text-body-md focus:ring-2 focus:ring-gavel-gold outline-none font-medium text-judicial-navy"
                             >
                                 {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+                            </select>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            <label className="text-[10px] font-bold text-outline uppercase pl-1">Chọn thẩm phán</label>
+                            <select 
+                                value={selectedJudge} 
+                                onChange={e => setSelectedJudge(e.target.value)}
+                                className="border border-seal-silver bg-surface-container-low rounded-lg px-2 py-1 text-body-md focus:ring-2 focus:ring-gavel-gold outline-none font-medium text-judicial-navy"
+                            >
+                                <option value="">Tất cả thẩm phán</option>
+                                {judges.map(j => <option key={j.id} value={j.username}>{j.username}</option>)}
                             </select>
                         </div>
                     </div>
@@ -318,7 +350,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogout }) {
                         </div>
                         <div>
                             <p className="text-caption text-outline margin-0">Tổng số phiên trong tháng</p>
-                            <p className="text-title-lg font-bold text-judicial-navy margin-0">{schedule.length}</p>
+                            <p className="text-title-lg font-bold text-judicial-navy margin-0">{filteredSchedule.length}</p>
                         </div>
                     </div>
                     <div className="bg-white p-4 rounded-xl border border-seal-silver flex items-center gap-4 shadow-sm">
@@ -328,7 +360,11 @@ export default function JudgeScheduleCalendar({ judgeName, onLogout }) {
                         <div>
                             <p className="text-caption text-outline margin-0">Đã hoàn thành</p>
                             <p className="text-title-lg font-bold text-status-completed margin-0">
-                                {schedule.filter(s => new Date(s.date) < today).length}
+                                {filteredSchedule.filter(s => {
+                                    const parts = s.date.split("-").map(Number);
+                                    const sDate = new Date(parts[0], parts[1] - 1, parts[2]);
+                                    return sDate < today;
+                                }).length}
                             </p>
                         </div>
                     </div>
@@ -339,7 +375,11 @@ export default function JudgeScheduleCalendar({ judgeName, onLogout }) {
                         <div>
                             <p className="text-caption text-outline margin-0">Đang chờ</p>
                             <p className="text-title-lg font-bold text-status-scheduled margin-0">
-                                {schedule.filter(s => new Date(s.date) >= today).length}
+                                {filteredSchedule.filter(s => {
+                                    const parts = s.date.split("-").map(Number);
+                                    const sDate = new Date(parts[0], parts[1] - 1, parts[2]);
+                                    return sDate >= today;
+                                }).length}
                             </p>
                         </div>
                     </div>

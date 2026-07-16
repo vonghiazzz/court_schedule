@@ -100,9 +100,18 @@ def logout(request: Request, response: Response):
     return {"msg": "Đăng xuất thành công"}
 
 
+from typing import List
+
 @router.get("/me", response_model=schemas.UserOut)
 def read_current_user(current_user: schemas.UserOut = Depends(auth_service.get_current_user)):
     return current_user
+
+@router.get("/users", response_model=List[schemas.UserOut])
+def get_all_users(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth_service.get_current_user)
+):
+    return db.query(models.User).order_by(models.User.username.asc()).all()
 
 @router.post("/change-password")
 def change_password(

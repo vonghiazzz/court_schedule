@@ -91,16 +91,27 @@ from typing import Optional
 def get_all_schedules(
     month: Optional[int] = None,
     year: Optional[int] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
     db: Session = Depends(get_db)
 ):
     query = db.query(models.Schedule).options(joinedload(models.Schedule.user))
-    if month is not None and year is not None:
-        # Lọc theo tháng và năm (định dạng YYYY-MM-DD trong DB)
-        month_str = f"{year}-{month:02d}-%"
-        query = query.filter(models.Schedule.date.like(month_str))
-    elif year is not None:
-        year_str = f"{year}-%"
-        query = query.filter(models.Schedule.date.like(year_str))
+    
+    if start_date:
+        query = query.filter(models.Schedule.date >= start_date)
+    if end_date:
+        query = query.filter(models.Schedule.date <= end_date)
+        
+    if not start_date and not end_date:
+        if month is not None and year is not None:
+            # Lọc theo tháng và năm (định dạng YYYY-MM-DD trong DB)
+            month_str = f"{year}-{month:02d}-%"
+            query = query.filter(models.Schedule.date.like(month_str))
+        elif year is not None:
+            year_str = f"{year}-%"
+            query = query.filter(models.Schedule.date.like(year_str))
+            
+    query = query.order_by(models.Schedule.date.asc(), models.Schedule.start_time.asc())
         
     return query.all()
 
