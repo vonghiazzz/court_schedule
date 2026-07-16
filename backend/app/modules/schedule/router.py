@@ -5,7 +5,7 @@ from app.modules.schedule import models, schemas
 from app.modules.users import models as users_models
 from app.core import database
 from app.modules.auth.service import get_current_user
-from sqlalchemy import or_
+from sqlalchemy import or_, func
 
 router = APIRouter(prefix="/schedule", tags=["Schedule"])
 
@@ -63,9 +63,12 @@ def create_schedule(
             detail="Thẩm phán/Hội thẩm này đã có lịch trong khoảng thời gian này ở hội trường khác!"
         )
 
-    
+    # Lấy ID lớn nhất hiện tại để tránh trùng ID
+    max_id = db.query(func.max(models.Schedule.id)).scalar() or 0
+    new_id = max_id + 1
 
     new_schedule = models.Schedule(
+        id=new_id,
         date=schedule.date,
         room=schedule.room,
         shift=schedule.shift,
