@@ -65,8 +65,8 @@ export default function Layout({ children, judgeName, onLogout, onChangePassword
                             />
                         </div>
                         <div>
-                            <h1 className="font-headline-md text-[15px] font-extrabold text-white leading-tight">Hệ thống xét xử</h1>
-                            <p className="text-[9px] text-on-primary-container/70 uppercase tracking-widest font-semibold">Tòa án Nhân dân</p>
+                            <h1 className="font-headline-md text-[15px] font-extrabold text-white leading-tight m-0">Hệ thống xét xử</h1>
+                            <p className="text-[9px] text-on-primary-container/70 uppercase tracking-widest font-semibold m-0">Tòa án Nhân dân</p>
                         </div>
                     </div>
                     {/* Close button for mobile screen drawer */}

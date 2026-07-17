@@ -375,7 +375,7 @@ export default function JudgeOverview({ judgeName, onLogout }) {
                                             <span className="text-xs text-outline font-medium">
                                                 ({item.start_time?.slice(0, 5)} - {item.end_time?.slice(0, 5)})
                                             </span>
-                                            <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase ${
+                                            <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${
                                                 item.shift === 'Sáng' 
                                                     ? 'bg-green-50 text-status-completed border border-status-completed/20' 
                                                     : item.shift === 'Chiều'
@@ -388,7 +388,7 @@ export default function JudgeOverview({ judgeName, onLogout }) {
                                         <p className="text-xs text-gray-700 font-semibold margin-0">
                                             Đương sự: <span className="text-gray-900 font-bold">{item.litigant}</span>
                                         </p>
-                                        <p className="text-[11px] text-gray-500 margin-0">
+                                        <p className="text-xs text-gray-500 margin-0">
                                             Tranh chấp: {item.dispute_relationship}
                                         </p>
                                     </div>
@@ -398,7 +398,7 @@ export default function JudgeOverview({ judgeName, onLogout }) {
                                             <span className="material-symbols-outlined text-[14px]">meeting_room</span>
                                             {item.room}
                                         </div>
-                                        <div className="text-[11px] text-outline font-medium">
+                                        <div className="text-xs text-outline font-medium">
                                             Thẩm phán: <span className="font-bold text-gray-700">{item.user?.username}</span>
                                         </div>
                                     </div>
