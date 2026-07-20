@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from '../utils/axios';
 import { toast } from "react-toastify";
+import ZaloSupportWidget from '../components/ZaloSupportWidget';
 // Import file CSS riêng vừa tạo ở bước 1 (Điều chỉnh lại đường dẫn file cho đúng cấu trúc thư mục của bạn)
 import '../styles/login.css'; 
 
@@ -67,11 +68,20 @@ function Login({ onLoginSuccess }) {
             </h1>
           </div>
           <div className="login-header-right">
+            <a 
+              href="https://zalo.me/0582030018"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-xs text-blue-700 bg-blue-50 px-3 py-1.5 rounded-full font-bold no-underline hover:bg-blue-100 transition-colors border border-blue-200"
+              title="Gửi yêu cầu hỗ trợ qua Zalo"
+            >
+              <span className="material-symbols-outlined text-[16px]">chat</span>
+              Zalo Hỗ Trợ: 0582030018 (Nghĩa)
+            </a>
             <div className="lang-selector">
               <span className="material-symbols-outlined">language</span>
               <span className="lang-text">Tiếng Việt</span>
             </div>
-            {/* <span className="material-symbols-outlined help-icon">help</span> */}
           </div>
         </div>
       </header>
@@ -124,7 +134,6 @@ function Login({ onLoginSuccess }) {
                   <label className="form-label" htmlFor="password">
                     Mật khẩu
                   </label>
-                  {/* <a className="form-link" href="#forgot">Quên mật khẩu?</a> */}
                 </div>
                 <div className="input-wrapper">
                   <span className="material-symbols-outlined input-icon">
@@ -182,6 +191,19 @@ function Login({ onLoginSuccess }) {
                 )}
               </button>  
             </form>
+
+            {/* Support Notice */}
+            <div className="mt-4 pt-3 border-t border-gray-100 text-center">
+              <span className="text-xs text-gray-500">Mọi yêu cầu hỗ trợ tài khoản / hệ thống vui lòng gửi qua </span>
+              <a 
+                href="https://zalo.me/0582030018" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-xs font-bold text-blue-600 hover:underline"
+              >
+                Zalo Quản lý: Nghĩa (0582030018)
+              </a>
+            </div>
           </div>
         </div>
       </main>
@@ -192,11 +214,19 @@ function Login({ onLoginSuccess }) {
           <div>
             HỆ THỐNG LỊCH XÉT XỬ | © 2026
           </div>
+          <div className="footer-links flex items-center gap-4 text-xs">
+            <span>Quản lý website: <strong className="text-gray-800">Nghĩa</strong></span>
+            <span>•</span>
+            <span>Zalo hỗ trợ & nhận yêu cầu: <a href="https://zalo.me/0582030018" target="_blank" rel="noopener noreferrer" className="text-blue-600 font-bold hover:underline">0582030018</a></span>
+          </div>
         </div>
       </footer>
+
+      {/* Floating Zalo Support Widget */}
+      <ZaloSupportWidget />
 
     </div>
   );
 }
 
-export default Login;
+export default Login;
