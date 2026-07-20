@@ -156,7 +156,7 @@ export default function Layout({ children, judgeName, onLogout, onChangePassword
                         title="Cấu hình tài khoản"
                     >
                         <span className="material-symbols-outlined text-[20px]">settings</span>
-                        <span>Cấu hình tài khoản</span>
+                        <span>Đổi mật khẩu</span>
                     </div>
                     <div 
                         onClick={onLogout}
@@ -202,9 +202,9 @@ export default function Layout({ children, judgeName, onLogout, onChangePassword
                                 <span className="material-symbols-outlined text-[16px] text-blue-600">chat</span>
                                 Zalo: 0582030018 (Nghĩa)
                             </a>
-                            <button className="material-symbols-outlined hover:text-judicial-navy border-none bg-transparent cursor-pointer" title="Tìm kiếm">search</button>
+                            {/* <button className="material-symbols-outlined hover:text-judicial-navy border-none bg-transparent cursor-pointer" title="Tìm kiếm">search</button>
                             <button className="material-symbols-outlined hover:text-judicial-navy border-none bg-transparent cursor-pointer" title="Thông báo">notifications</button>
-                            <button className="material-symbols-outlined hover:text-judicial-navy border-none bg-transparent cursor-pointer" title="Lịch sử">history</button>
+                            <button className="material-symbols-outlined hover:text-judicial-navy border-none bg-transparent cursor-pointer" title="Lịch sử">history</button> */}
                         </div>
                         <div className="h-8 w-px bg-seal-silver"></div>
                         
