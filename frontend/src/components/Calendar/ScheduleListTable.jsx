@@ -63,30 +63,30 @@ const ScheduleListTable = ({
 
             {/* Desktop View (Table) */}
             <div className="hidden md:block overflow-x-auto rounded-lg border border-seal-silver">
-                <table className="w-full text-left border-collapse">
+                <table className="w-full text-left border-collapse min-w-[1000px]">
                     <thead>
-                        <tr className="bg-surface-container-low text-caption font-bold uppercase tracking-wider text-outline">
-                            <th className="px-4 py-3 border-b border-seal-silver">STT</th>
-                            <th className="px-4 py-3 border-b border-seal-silver">Ngày</th>
-                            <th className="px-4 py-3 border-b border-seal-silver">Buổi</th>
-                            <th className="px-4 py-3 border-b border-seal-silver">Thời gian</th>
-                            <th className="px-4 py-3 border-b border-seal-silver">Hội trường</th>
-                            <th className="px-4 py-3 border-b border-seal-silver">Đương sự</th>
-                            <th className="px-4 py-3 border-b border-seal-silver">Quan hệ tranh chấp</th>
-                            <th className="px-4 py-3 border-b border-seal-silver">Thẩm phán</th>
-                            <th className="px-4 py-3 border-b border-seal-silver">Hội thẩm</th>
-                            <th className="px-4 py-3 border-b border-seal-silver">Ghi chú</th>
+                        <tr className="bg-surface-container-low text-caption font-bold uppercase tracking-wider text-outline whitespace-nowrap">
+                            <th className="px-3 py-3 border-b border-seal-silver w-12 text-center">STT</th>
+                            <th className="px-3 py-3 border-b border-seal-silver w-24">Ngày</th>
+                            <th className="px-3 py-3 border-b border-seal-silver w-20 text-center">Buổi</th>
+                            <th className="px-3 py-3 border-b border-seal-silver w-28">Thời gian</th>
+                            <th className="px-3 py-3 border-b border-seal-silver w-28">Hội trường</th>
+                            <th className="px-3 py-3 border-b border-seal-silver max-w-[180px]">Đương sự</th>
+                            <th className="px-3 py-3 border-b border-seal-silver max-w-[200px]">Quan hệ tranh chấp</th>
+                            <th className="px-3 py-3 border-b border-seal-silver w-36">Thẩm phán</th>
+                            <th className="px-3 py-3 border-b border-seal-silver max-w-[180px]">Hội thẩm</th>
+                            <th className="px-3 py-3 border-b border-seal-silver max-w-[150px]">Ghi chú</th>
                         </tr>
                     </thead>
                     <tbody className="text-body-md">
                         {paginatedSchedules.map((item, idx) => (
                             <tr key={item.id} className="hover:bg-surface-container-low/40 transition-colors border-b border-seal-silver last:border-none">
-                                <td className="px-4 py-3 font-semibold text-outline">{startIndex + idx + 1}</td>
-                                <td className="px-4 py-3 font-semibold text-judicial-navy">
+                                <td className="px-3 py-3 font-semibold text-outline text-center">{startIndex + idx + 1}</td>
+                                <td className="px-3 py-3 font-semibold text-judicial-navy whitespace-nowrap">
                                     {new Date(item.date).toLocaleDateString("vi-VN")}
                                 </td>
-                                <td className="px-4 py-3">
-                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                                <td className="px-3 py-3 text-center">
+                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase whitespace-nowrap ${
                                         item.shift === 'Sáng' 
                                             ? 'bg-green-50 text-status-completed border border-status-completed/20' 
                                             : item.shift === 'Chiều'
@@ -96,15 +96,15 @@ const ScheduleListTable = ({
                                         {item.shift}
                                     </span>
                                 </td>
-                                <td className="px-4 py-3 font-semibold text-gray-700">{item.start_time?.slice(0, 5)} - {item.end_time?.slice(0, 5)}</td>
-                                <td className="px-4 py-3 font-bold text-judicial-navy">{item.room}</td>
-                                <td className="px-4 py-3 text-gray-700 font-medium">{item.litigant}</td>
-                                <td className="px-4 py-3 text-gray-600">{item.dispute_relationship}</td>
-                                <td className="px-4 py-3 font-bold text-judicial-navy">{item.user?.username}</td>
-                                <td className="px-4 py-3 text-gray-600">
+                                <td className="px-3 py-3 font-semibold text-gray-700 whitespace-nowrap">{item.start_time?.slice(0, 5)} - {item.end_time?.slice(0, 5)}</td>
+                                <td className="px-3 py-3 font-bold text-judicial-navy whitespace-nowrap">{item.room}</td>
+                                <td className="px-3 py-3 text-gray-700 font-medium max-w-[180px] break-words">{item.litigant}</td>
+                                <td className="px-3 py-3 text-gray-600 max-w-[200px] break-words">{item.dispute_relationship}</td>
+                                <td className="px-3 py-3 font-bold text-judicial-navy max-w-[150px] break-words">{item.user?.username}</td>
+                                <td className="px-3 py-3 text-gray-600 max-w-[180px] break-words">
                                     {Array.isArray(item.jurors) ? item.jurors.join(", ") : item.jurors}
                                 </td>
-                                <td className="px-4 py-3 text-gray-500 italic max-w-xs truncate" title={item.note}>
+                                <td className="px-3 py-3 text-gray-500 italic max-w-[150px] truncate" title={item.note}>
                                     {item.note || ""}
                                 </td>
                             </tr>

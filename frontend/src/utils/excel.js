@@ -27,11 +27,19 @@ export const downloadJudgeStats = (stats, searchJudgeTerm) => {
 
     const ws = XLSX.utils.json_to_sheet(data);
 
+    const fixedColWidths = {
+        "STT": 6,
+        "Thẩm phán": 22,
+        "Đã hoàn thành": 16,
+        "Chưa hoàn thành": 16,
+        "Tổng đăng ký": 15
+    };
+
     const colWidths = Object.keys(data[0]).map((key) => ({
-        wch: Math.max(
-            key.length,
-            ...data.map((row) => (row[key] ? row[key].toString().length : 0))
-        ) + 2
+        wch: fixedColWidths[key] || Math.min(
+            Math.max(key.length, ...data.map((row) => (row[key] ? row[key].toString().length : 0))) + 2,
+            30
+        )
     }));
     ws['!cols'] = colWidths;
 
@@ -78,11 +86,19 @@ export const downloadSchedule = (filteredSchedules) => {
         };
     });
 
+    const fixedColWidths = {
+        "STT": 6,
+        "Thời gian xét xử": 18,
+        "Đương sự": 25,
+        "Quan hệ tranh chấp": 28,
+        "Hội trường": 15,
+        "Hội thẩm nhân dân": 24,
+        "Thẩm phán (Chủ tọa)": 22,
+        "Ghi chú": 25
+    };
+
     const colWidths = Object.keys(data[0]).map((key) => ({
-        wch: Math.max(
-            key.length,
-            ...data.map((row) => (row[key] ? row[key].toString().length : 0))
-        ) + 2
+        wch: fixedColWidths[key] || 25
     }));
     ws['!cols'] = colWidths;
 
