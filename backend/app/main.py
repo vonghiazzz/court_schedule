@@ -2,15 +2,29 @@ from fastapi import FastAPI
 from app.core.database import engine, SessionLocal, Base
 from app.modules.users import models as user_models
 from app.modules.schedule import models as schedule_models
+from app.modules.council import models as council_models
 from app.modules.users import router as users_router
 from app.modules.schedule import router as schedule_router
+from app.modules.council import router as council_router
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import text
+from sqlalchemy import inspect, text
 
 app = FastAPI()
 
-# Tạo bảng trong DB nếu chưa có
+# Tạo bảng trong DB nếu chưa có. Chỉ nạp danh sách mặc định khi bảng vừa được tạo,
+# tránh việc các thành viên đã bị quản trị viên xóa xuất hiện lại sau khi restart.
+council_table_existed = inspect(engine).has_table("council_members")
 Base.metadata.create_all(bind=engine)
+if not council_table_existed:
+    db = SessionLocal()
+    try:
+        db.add_all([
+            council_models.CouncilMember(full_name=full_name)
+            for full_name in council_models.DEFAULT_COUNCIL_MEMBERS
+        ])
+        db.commit()
+    finally:
+        db.close()
 
 # API clear dữ liệu bảng schedules
 @app.delete("/clear-schedules")
@@ -36,6 +50,7 @@ def add_columns():
         db.close()
 app.include_router(users_router.router)
 app.include_router(schedule_router.router)
+app.include_router(council_router.router)
 
 origins = [
     "http://localhost",

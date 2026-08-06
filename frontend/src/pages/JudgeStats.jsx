@@ -14,7 +14,7 @@ import ChangePasswordModal from "../components/Modals/ChangePasswordModal";
 // Styles
 import "../styles/JudgeCalendar.css";
 
-export default function JudgeStats({ judgeName, onLogout }) {
+export default function JudgeStats({ judgeName, onLogout, isAdmin }) {
     const navigate = useNavigate();
     const [reportMode, setReportMode] = useState("month");
     const [filterMonth, setFilterMonth] = useState(new Date().getMonth());
@@ -229,6 +229,7 @@ export default function JudgeStats({ judgeName, onLogout }) {
             judgeName={judgeName} 
             onLogout={handleLogout} 
             onChangePassword={handleChangePassword}
+            isAdmin={isAdmin}
         >
             {loading && (
                 <div className="loading-overlay">

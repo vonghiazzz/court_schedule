@@ -31,7 +31,7 @@ const getVietnameseDayOfWeek = (dateStr) => {
     }
 };
 
-export default function JudgeScheduleCalendar({ judgeName, onLogout }) {
+export default function JudgeScheduleCalendar({ judgeName, onLogout, isAdmin }) {
     const navigate = useNavigate();
     const [currentDate] = useState(new Date());
     const [filterMonth, setFilterMonth] = useState(currentDate.getMonth());
@@ -43,18 +43,24 @@ export default function JudgeScheduleCalendar({ judgeName, onLogout }) {
 
     const [selectedJudge, setSelectedJudge] = useState("");
     const [judges, setJudges] = useState([]);
+    const [councilMembers, setCouncilMembers] = useState([]);
 
     // Load judges
     useEffect(() => {
-        const fetchJudges = async () => {
+        const fetchReferenceData = async () => {
             try {
-                const res = await api.get('/users');
-                setJudges(res.data);
+                const [usersResponse, councilResponse] = await Promise.all([
+                    api.get('/users'),
+                    api.get('/council-members'),
+                ]);
+                setJudges(usersResponse.data);
+                setCouncilMembers(councilResponse.data.map(member => member.full_name));
             } catch (err) {
-                console.error("Lỗi tải danh sách thẩm phán:", err);
+                console.error("Lỗi tải dữ liệu danh mục:", err);
+                toast.error("Không thể tải danh sách thẩm phán/hội đồng xét xử.");
             }
         };
-        fetchJudges();
+        fetchReferenceData();
     }, []);
 
     const filteredSchedule = useMemo(() => {
@@ -281,6 +287,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogout }) {
             judgeName={judgeName} 
             onLogout={handleLogout} 
             onChangePassword={handleChangePassword}
+            isAdmin={isAdmin}
         >
             {loading && (
                 <div className="loading-overlay">
@@ -618,6 +625,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogout }) {
                 startTime={startTime} setStartTime={setStartTime}
                 endTime={endTime} setEndTime={setEndTime}
                 selectedJurors={selectedJurors} setSelectedJurors={setSelectedJurors}
+                jurors={councilMembers}
                 litigant={litigant} setLitigant={setLitigant}
                 dispute_relationship={dispute_relationship} setDispute_relationship={setDispute_relationship}
                 note={note} setNote={setNote}

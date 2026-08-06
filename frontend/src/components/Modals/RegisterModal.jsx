@@ -1,5 +1,12 @@
-import React from 'react';
-import { ROOMS, SHIFTS, JUROR } from '../../constants';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ROOMS, SHIFTS } from '../../constants';
+
+const normalizeSearchText = (value = '') => value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+    .toLowerCase();
 
 const RegisterModal = ({
     isOpen,
@@ -14,6 +21,7 @@ const RegisterModal = ({
     setEndTime,
     selectedJurors,
     setSelectedJurors,
+    jurors,
     litigant,
     setLitigant,
     dispute_relationship,
@@ -23,6 +31,23 @@ const RegisterModal = ({
     handleRegister,
     onClose
 }) => {
+    const [jurorSearch, setJurorSearch] = useState('');
+
+    useEffect(() => {
+        if (isOpen) setJurorSearch('');
+    }, [isOpen]);
+
+    const availableJurors = useMemo(
+        () => Array.from(new Set([...(jurors || []), ...(selectedJurors || [])])),
+        [jurors, selectedJurors]
+    );
+
+    const filteredJurors = useMemo(() => {
+        const keyword = normalizeSearchText(jurorSearch.trim());
+        if (!keyword) return availableJurors;
+        return availableJurors.filter(juror => normalizeSearchText(juror).includes(keyword));
+    }, [availableJurors, jurorSearch]);
+
     if (!isOpen) return null;
 
     return (
@@ -113,10 +138,35 @@ const RegisterModal = ({
                     
                     {/* Council Selection (Custom List View) */}
                     <div className="space-y-1">
-                        <label className="font-label-md text-on-surface-variant font-bold text-xs">Hội đồng xét xử</label>
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <label className="font-label-md text-on-surface-variant font-bold text-xs">
+                                Hội đồng xét xử
+                                <span className="ml-2 font-normal text-outline">Đã chọn: {selectedJurors.length}</span>
+                            </label>
+                            <div className="relative w-full sm:w-64">
+                                <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[18px] text-outline">search</span>
+                                <input
+                                    type="text"
+                                    value={jurorSearch}
+                                    onChange={(e) => setJurorSearch(e.target.value)}
+                                    placeholder="Tìm tên hội thẩm..."
+                                    className="w-full rounded-lg border border-seal-silver bg-white py-1.5 pl-9 pr-8 text-sm outline-none transition-all focus:border-gavel-gold focus:ring-2 focus:ring-gavel-gold/20"
+                                />
+                                {jurorSearch && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setJurorSearch('')}
+                                        className="absolute right-2 top-1/2 flex -translate-y-1/2 cursor-pointer border-none bg-transparent p-0 text-outline hover:text-error"
+                                        title="Xóa nội dung tìm kiếm"
+                                    >
+                                        <span className="material-symbols-outlined text-[18px]">close</span>
+                                    </button>
+                                )}
+                            </div>
+                        </div>
                         <div className="border border-seal-silver rounded-lg bg-surface-container-lowest h-32 overflow-y-auto p-2">
                             <div className="flex flex-col gap-1">
-                                {JUROR.map(juror => {
+                                {filteredJurors.map(juror => {
                                     const isSelected = selectedJurors.includes(juror);
                                     return (
                                         <div 
@@ -138,6 +188,12 @@ const RegisterModal = ({
                                         </div>
                                     );
                                 })}
+                                {!availableJurors.length && (
+                                    <p className="p-3 text-center text-sm text-outline">Chưa có thành viên hội đồng xét xử.</p>
+                                )}
+                                {availableJurors.length > 0 && filteredJurors.length === 0 && (
+                                    <p className="p-3 text-center text-sm text-outline">Không tìm thấy tên phù hợp.</p>
+                                )}
                             </div>
                         </div>
                     </div>

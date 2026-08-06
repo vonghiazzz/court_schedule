@@ -74,3 +74,12 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         return user
     finally:
         db.close()
+
+
+def get_current_admin(current_user: models.User = Depends(get_current_user)):
+    if not bool(current_user.is_admin):
+        raise HTTPException(
+            status_code=403,
+            detail="Chỉ tài khoản quản trị viên mới được thực hiện thao tác này",
+        )
+    return current_user

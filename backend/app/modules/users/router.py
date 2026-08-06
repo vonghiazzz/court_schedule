@@ -1,5 +1,5 @@
 import datetime
-from fastapi import APIRouter, Depends, HTTPException, Body, Response, Cookie, Request
+from fastapi import APIRouter, Depends, HTTPException, Body, Response, Cookie, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from app.modules.users import models, schemas
@@ -18,8 +18,19 @@ def get_db():
 
 from app.modules.schedule import models as schedule_models
 
+
+def get_user_or_404(user_id: int, db: Session) -> models.User:
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Không tìm thấy tài khoản")
+    return user
+
 @router.post("/register", response_model=schemas.UserOut)
-def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
+def register(
+    user: schemas.UserCreate,
+    db: Session = Depends(get_db),
+    current_admin: models.User = Depends(auth_service.get_current_admin),
+):
     db_user = db.query(models.User).filter(models.User.username == user.username).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Username đã tồn tại")
@@ -112,6 +123,128 @@ def get_all_users(
     current_user: models.User = Depends(auth_service.get_current_user)
 ):
     return db.query(models.User).order_by(models.User.username.asc()).all()
+
+
+@router.get("/admin/users", response_model=List[schemas.UserOut])
+def admin_get_users(
+    db: Session = Depends(get_db),
+    current_admin: models.User = Depends(auth_service.get_current_admin),
+):
+    return db.query(models.User).order_by(models.User.username.asc()).all()
+
+
+@router.post(
+    "/admin/users",
+    response_model=schemas.UserOut,
+    status_code=status.HTTP_201_CREATED,
+)
+def admin_create_user(
+    user_data: schemas.AdminUserCreate,
+    db: Session = Depends(get_db),
+    current_admin: models.User = Depends(auth_service.get_current_admin),
+):
+    existing_user = (
+        db.query(models.User)
+        .filter(models.User.username == user_data.username)
+        .first()
+    )
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Tên đăng nhập đã tồn tại")
+
+    user = models.User(
+        username=user_data.username,
+        password_hash=auth_service.hash_password(user_data.password),
+        is_admin=1 if user_data.is_admin else 0,
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+@router.patch("/admin/users/{user_id}", response_model=schemas.UserOut)
+def admin_update_user(
+    user_id: int,
+    user_data: schemas.AdminUserUpdate,
+    db: Session = Depends(get_db),
+    current_admin: models.User = Depends(auth_service.get_current_admin),
+):
+    user = get_user_or_404(user_id, db)
+
+    if user_data.username is not None and user_data.username != user.username:
+        if user.id == current_admin.id:
+            raise HTTPException(
+                status_code=400,
+                detail="Bạn không thể đổi tên tài khoản đang đăng nhập",
+            )
+        duplicate = (
+            db.query(models.User)
+            .filter(
+                models.User.username == user_data.username,
+                models.User.id != user_id,
+            )
+            .first()
+        )
+        if duplicate:
+            raise HTTPException(status_code=400, detail="Tên đăng nhập đã tồn tại")
+        user.username = user_data.username
+
+    if user_data.is_admin is not None:
+        if user.id == current_admin.id and not user_data.is_admin:
+            raise HTTPException(
+                status_code=400,
+                detail="Bạn không thể tự thu hồi quyền quản trị của mình",
+            )
+        user.is_admin = 1 if user_data.is_admin else 0
+
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+@router.post("/admin/users/{user_id}/reset-password")
+def admin_reset_user_password(
+    user_id: int,
+    password_data: schemas.AdminPasswordReset,
+    db: Session = Depends(get_db),
+    current_admin: models.User = Depends(auth_service.get_current_admin),
+):
+    user = get_user_or_404(user_id, db)
+    user.password_hash = auth_service.hash_password(password_data.new_password)
+    db.commit()
+    return {"msg": "Đặt lại mật khẩu thành công"}
+
+
+@router.delete("/admin/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+def admin_delete_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_admin: models.User = Depends(auth_service.get_current_admin),
+):
+    user = get_user_or_404(user_id, db)
+    if user.id == current_admin.id:
+        raise HTTPException(
+            status_code=400,
+            detail="Bạn không thể tự xóa tài khoản đang đăng nhập",
+        )
+
+    schedule_count = (
+        db.query(schedule_models.Schedule)
+        .filter(schedule_models.Schedule.user_id == user.id)
+        .count()
+    )
+    if schedule_count:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                f"Tài khoản đang có {schedule_count} lịch xét xử. "
+                "Hãy xử lý các lịch liên quan trước khi xóa."
+            ),
+        )
+
+    db.delete(user)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 @router.post("/change-password")
 def change_password(

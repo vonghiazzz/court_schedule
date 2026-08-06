@@ -6,6 +6,8 @@ import JudgeCalendar from './pages/JudgeCalendar'
 import JudgeStats from './pages/JudgeStats'
 import JudgeManagement from './pages/JudgeManagement'
 import JudgeOverview from './pages/JudgeOverview'
+import UserManagement from './pages/UserManagement'
+import CouncilManagement from './pages/CouncilManagement'
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -14,6 +16,8 @@ import api, { isTokenExpired } from './utils/axios';
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token'))
   const [username, setUsername] = useState(() => localStorage.getItem("username") || "Không xác định");
+  const [currentUser, setCurrentUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(Boolean(token));
 
   // Cập nhật lại token nếu localStorage thay đổi (ví dụ sau khi đăng nhập)
   useEffect(() => {
@@ -25,6 +29,35 @@ function App() {
     window.addEventListener('storage', handleStorage)
     return () => window.removeEventListener('storage', handleStorage)
   }, [])
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadCurrentUser = async () => {
+      if (!token) {
+        setCurrentUser(null);
+        setAuthLoading(false);
+        return;
+      }
+
+      setAuthLoading(true);
+      try {
+        const response = await api.get('/me');
+        if (!cancelled) {
+          setCurrentUser(response.data);
+          setUsername(response.data.username);
+          localStorage.setItem('username', response.data.username);
+        }
+      } catch (error) {
+        if (!cancelled) setCurrentUser(null);
+      } finally {
+        if (!cancelled) setAuthLoading(false);
+      }
+    };
+
+    loadCurrentUser();
+    return () => { cancelled = true; };
+  }, [token]);
 
   // Kiểm tra thời gian hết hạn của token khi khởi động app và khi chuyển tab về ứng dụng
   useEffect(() => {
@@ -92,6 +125,7 @@ function App() {
     localStorage.removeItem("username");
     setToken(null);
     setUsername(null);
+    setCurrentUser(null);
     toast.success("Đăng xuất thành công!");
     window.location.href = "/login";
   };
@@ -102,6 +136,15 @@ function App() {
       window.location.href = "/tong-quan";
     }, 2000);
   };
+
+  const isAdmin = Boolean(currentUser?.is_admin);
+  const renderAdminRoute = (page) => token
+    ? (authLoading
+      ? <div className="min-h-screen flex items-center justify-center text-judicial-navy font-semibold">Đang kiểm tra quyền truy cập...</div>
+      : (isAdmin
+        ? page
+        : <Navigate to="/tong-quan" replace />))
+    : <Navigate to="/login" replace />;
 
   return (
     <BrowserRouter>
@@ -117,25 +160,34 @@ function App() {
         {/* Trang tổng quan của hệ thống */}
         <Route
           path="/tong-quan"
-          element={token ? <JudgeOverview judgeName={username} onLogout={handleLogout} /> : <Navigate to="/login" />}
+          element={token ? <JudgeOverview judgeName={username} onLogout={handleLogout} isAdmin={isAdmin} /> : <Navigate to="/login" />}
         />
 
         {/* Trang lịch dạng vạn niên của thẩm phán */}
         <Route
           path="/lich-tham-phan"
-          element={token ? <JudgeCalendar judgeName={username} onLogout={handleLogout} /> : <Navigate to="/login" />}
+          element={token ? <JudgeCalendar judgeName={username} onLogout={handleLogout} isAdmin={isAdmin} /> : <Navigate to="/login" />}
         />
 
         {/* Trang thống kê phiên xử của các thẩm phán */}
         <Route
           path="/thong-ke-phien-xu"
-          element={token ? <JudgeStats judgeName={username} onLogout={handleLogout} /> : <Navigate to="/login" />}
+          element={token ? <JudgeStats judgeName={username} onLogout={handleLogout} isAdmin={isAdmin} /> : <Navigate to="/login" />}
         />
 
         {/* Trang quản lý danh sách phiên tòa trong tháng */}
         <Route
           path="/quan-ly-phien-toa"
-          element={token ? <JudgeManagement judgeName={username} onLogout={handleLogout} /> : <Navigate to="/login" />}
+          element={token ? <JudgeManagement judgeName={username} onLogout={handleLogout} isAdmin={isAdmin} /> : <Navigate to="/login" />}
+        />
+
+        <Route
+          path="/quan-ly-nguoi-dung"
+          element={renderAdminRoute(<UserManagement judgeName={username} onLogout={handleLogout} currentUser={currentUser} />)}
+        />
+        <Route
+          path="/quan-ly-hoi-dong-xet-xu"
+          element={renderAdminRoute(<CouncilManagement judgeName={username} onLogout={handleLogout} />)}
         />
       </Routes>
     </BrowserRouter>

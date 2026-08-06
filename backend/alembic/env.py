@@ -16,6 +16,7 @@ from app.core.database import Base
 # Import các models để Base.metadata được cập nhật đầy đủ
 from app.modules.users import models as users_models
 from app.modules.schedule import models as schedule_models
+from app.modules.council import models as council_models
 
 # Lấy APP_ENV từ .env (mặc định = local)
 APP_ENV = os.getenv("APP_ENV", "local")

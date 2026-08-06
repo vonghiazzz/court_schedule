@@ -13,7 +13,7 @@ const getInitials = (name) => {
     return cleanName.slice(0, 2).toUpperCase();
 };
 
-export default function Layout({ children, judgeName, onLogout, onChangePassword }) {
+export default function Layout({ children, judgeName, onLogout, onChangePassword, isAdmin = false }) {
     const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
     const location = useLocation();
     const currentPath = location.pathname;
@@ -126,6 +126,32 @@ export default function Layout({ children, judgeName, onLogout, onChangePassword
                         <span className={`material-symbols-outlined text-[20px] ${currentPath === '/quan-ly-phien-toa' ? 'text-gavel-gold' : ''}`}>gavel</span>
                         <span className="font-body-md text-sm font-medium">Quản lý phiên tòa</span>
                     </Link>
+                    {isAdmin && (
+                        <>
+                            <Link
+                                to="/quan-ly-nguoi-dung"
+                                className={`w-full flex items-center gap-4 px-3 py-2.5 transition-all duration-200 cursor-pointer text-left rounded-lg border-none no-underline ${
+                                    currentPath === '/quan-ly-nguoi-dung'
+                                        ? "text-white bg-white/10 border-l-4 border-l-gavel-gold border-t-0 border-r-0 border-b-0 font-bold"
+                                        : "text-on-primary-container/85 hover:text-white hover:bg-white/5 hover:translate-x-1"
+                                }`}
+                            >
+                                <span className={`material-symbols-outlined text-[20px] ${currentPath === '/quan-ly-nguoi-dung' ? 'text-gavel-gold' : ''}`}>manage_accounts</span>
+                                <span className="font-body-md text-sm font-medium">Quản lý người dùng</span>
+                            </Link>
+                            <Link
+                                to="/quan-ly-hoi-dong-xet-xu"
+                                className={`w-full flex items-center gap-4 px-3 py-2.5 transition-all duration-200 cursor-pointer text-left rounded-lg border-none no-underline ${
+                                    currentPath === '/quan-ly-hoi-dong-xet-xu'
+                                        ? "text-white bg-white/10 border-l-4 border-l-gavel-gold border-t-0 border-r-0 border-b-0 font-bold"
+                                        : "text-on-primary-container/85 hover:text-white hover:bg-white/5 hover:translate-x-1"
+                                }`}
+                            >
+                                <span className={`material-symbols-outlined text-[20px] ${currentPath === '/quan-ly-hoi-dong-xet-xu' ? 'text-gavel-gold' : ''}`}>groups</span>
+                                <span className="font-body-md text-sm font-medium">Hội đồng xét xử</span>
+                            </Link>
+                        </>
+                    )}
                 </nav>
                 
                 {/* Admin Contact Block in Sidebar */}
@@ -214,7 +240,10 @@ export default function Layout({ children, judgeName, onLogout, onChangePassword
                                 className="flex items-center gap-3 cursor-pointer select-none"
                                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                             >
-                                <span className="hidden sm:inline text-sm font-semibold text-judicial-navy">{judgeName}</span>
+                                <div className="hidden sm:flex flex-col items-end">
+                                    <span className="text-sm font-semibold text-judicial-navy">{judgeName}</span>
+                                    {isAdmin && <span className="text-[10px] uppercase tracking-wide text-gavel-gold font-bold">Quản trị viên</span>}
+                                </div>
                                 <div className="w-8 h-8 rounded-full bg-gavel-gold flex items-center justify-center text-judicial-navy font-bold text-xs shadow-sm ring-2 ring-gavel-gold/25">
                                     {getInitials(judgeName)}
                                 </div>
@@ -290,4 +319,3 @@ export default function Layout({ children, judgeName, onLogout, onChangePassword
         </div>
     );
 }
-
