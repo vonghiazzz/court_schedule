@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 from typing import List
+from datetime import time
 from app.modules.schedule import models, schemas
 from app.modules.users import models as users_models
 from app.core import database
@@ -29,10 +30,17 @@ def create_schedule(
         models.Schedule.shift == schedule.shift,
         
     ).all()
-
     if len(same_slot) >= 6:
         raise HTTPException(status_code=400, detail="Mỗi buổi chỉ được đăng ký 6 hội trường!")
+
+    if not schedule.litigant:
+        raise HTTPException(status_code=400, detail="Vui lòng nhập tên đương sự!")
     
+    if not schedule.dispute_relationship:
+        raise HTTPException(status_code=400, detail="Vui lòng nhập quan hệ tranh chấp!")
+    
+    if len(schedule.jurors) > 6:
+        raise HTTPException(status_code=400, detail="Vui lòng chọn không quá 6 hội thẩm!")
     # Kiểm tra có lịch trùng không
     conflict = db.query(models.Schedule).filter(
         models.Schedule.date == schedule.date,

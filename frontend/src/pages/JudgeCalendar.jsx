@@ -432,6 +432,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogout }) {
                                         <th className="px-4 py-3 border-b border-seal-silver">Quan hệ tranh chấp</th>
                                         <th className="px-4 py-3 border-b border-seal-silver">Hội thẩm</th>
                                         <th className="px-4 py-3 border-b border-seal-silver">Ghi chú</th>
+                                        <th className="px-4 py-3 border-b border-seal-silver">Thời gian đăng ký</th>
                                         <th className="px-4 py-3 border-b border-seal-silver text-center">Hành động</th>
                                     </tr>
                                 </thead>
@@ -462,6 +463,15 @@ export default function JudgeScheduleCalendar({ judgeName, onLogout }) {
                                                     {Array.isArray(ev.jurors) ? ev.jurors.join(", ") : ev.jurors}
                                                 </td>
                                                 <td className="px-4 py-3 text-gray-500 italic max-w-xs truncate" title={ev.note}>{ev.note || ""}</td>
+                                                <td className="px-4 py-3 text-gray-600 text-xs">
+                                                    {ev.created_at ? new Date(ev.created_at).toLocaleString("vi-VN", {
+                                                        year: 'numeric',
+                                                        month: '2-digit',
+                                                        day: '2-digit',
+                                                        hour: '2-digit',
+                                                        minute: '2-digit'
+                                                    }) : "N/A"}
+                                                </td>
                                                 <td className="px-4 py-3 text-center">
                                                     {isOwnEvent && isFuture ? (
                                                         <div className="flex gap-2 justify-center">
@@ -489,7 +499,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogout }) {
                                     })}
                                     {getDaySchedule(selectedDate).length === 0 && (
                                         <tr>
-                                            <td colSpan="9" className="text-center py-6 text-outline bg-gray-50 font-semibold">
+                                            <td colSpan="10" className="text-center py-6 text-outline bg-gray-50 font-semibold">
                                                 Không có lịch xét xử nào đăng ký cho ngày này.
                                             </td>
                                         </tr>
@@ -537,6 +547,18 @@ export default function JudgeScheduleCalendar({ judgeName, onLogout }) {
                                         <div className="text-xs">
                                             <span className="block text-outline text-[10px] uppercase font-bold">Hội thẩm nhân dân</span>
                                             <span className="text-gray-700">{Array.isArray(ev.jurors) ? ev.jurors.join(", ") : ev.jurors}</span>
+                                        </div>
+                                        <div className="text-xs">
+                                            <span className="block text-outline text-[10px] uppercase font-bold">Thời gian đăng ký</span>
+                                            <span className="text-gray-700">
+                                                {ev.created_at ? new Date(ev.created_at).toLocaleString("vi-VN", {
+                                                    year: 'numeric',
+                                                    month: '2-digit',
+                                                    day: '2-digit',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
+                                                }) : "N/A"}
+                                            </span>
                                         </div>
                                         {ev.note && (
                                             <div className="text-xs italic text-gray-500 bg-gray-50 p-2 rounded">

@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional, List
 from enum import Enum
-from datetime import time
+from datetime import time, datetime
 from app.modules.users.schemas import UserOut
 
 class SessionEnum(str, Enum):
@@ -112,6 +112,7 @@ class ScheduleOut(BaseModel):
     dispute_relationship: Optional[str] = None
     litigant: Optional[str] = None
     note: Optional[str] = None
+    created_at: Optional[datetime] = None
     user: UserOut                
 
     class Config:
