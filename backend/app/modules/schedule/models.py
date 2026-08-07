@@ -1,7 +1,21 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Time, Text, DateTime, func
-from sqlalchemy.orm import relationship
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text, Time, func
 from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm import relationship
+
 from app.core.database import Base
+
+
+VIETNAM_TIMEZONE = ZoneInfo("Asia/Ho_Chi_Minh")
+
+
+def vietnam_now() -> datetime:
+    """Return an aware timestamp for the Vietnam timezone."""
+
+    return datetime.now(VIETNAM_TIMEZONE)
+
 
 class Schedule(Base):
     __tablename__ = "schedules"
@@ -15,7 +29,12 @@ class Schedule(Base):
     start_time = Column(Time, nullable=False) 
     end_time = Column(Time, nullable=False)   
     note = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=func.now(), server_default=func.now(), nullable=True)
+    created_at = Column(
+        DateTime(timezone=True),
+        default=vietnam_now,
+        server_default=func.now(),
+        nullable=True,
+    )
 
     user_id = Column(Integer, ForeignKey("users.id"), index=True)
     user = relationship("User", back_populates="schedules")

@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
-from datetime import time
 from app.modules.schedule import models, schemas
 from app.modules.users import models as users_models
 from app.modules.council import models as council_models

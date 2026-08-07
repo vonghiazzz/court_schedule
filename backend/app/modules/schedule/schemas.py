@@ -1,8 +1,15 @@
-from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing import Optional, List
+from datetime import datetime, time, timezone
 from enum import Enum
-from datetime import time, datetime
+from typing import List, Optional
+from zoneinfo import ZoneInfo
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
 from app.modules.users.schemas import UserOut
+
+
+VIETNAM_TIMEZONE = ZoneInfo("Asia/Ho_Chi_Minh")
+
 
 class SessionEnum(str, Enum):
     morning = "Sáng"
@@ -55,5 +62,20 @@ class ScheduleOut(BaseModel):
     note: Optional[str] = None
     created_at: Optional[datetime] = None
     user: UserOut                
+
+    @field_validator("created_at", mode="before")
+    @classmethod
+    def convert_created_at_to_vietnam(
+        cls,
+        value: Optional[datetime],
+    ) -> Optional[datetime]:
+        if value is None:
+            return None
+
+        # The old column stored UTC values without timezone information.
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
+
+        return value.astimezone(VIETNAM_TIMEZONE)
 
     model_config = ConfigDict(from_attributes=True)

@@ -31,6 +31,19 @@ const getVietnameseDayOfWeek = (dateStr) => {
     }
 };
 
+const formatVietnamDateTime = (value) => {
+    if (!value) return "N/A";
+
+    return new Date(value).toLocaleString("vi-VN", {
+        timeZone: "Asia/Ho_Chi_Minh",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+};
+
 export default function JudgeScheduleCalendar({ judgeName, onLogout, isAdmin }) {
     const navigate = useNavigate();
     const [currentDate] = useState(new Date());
@@ -471,13 +484,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogout, isAdmin }) 
                                                 </td>
                                                 <td className="px-4 py-3 text-gray-500 italic max-w-xs truncate" title={ev.note}>{ev.note || ""}</td>
                                                 <td className="px-4 py-3 text-gray-600 text-xs">
-                                                    {ev.created_at ? new Date(ev.created_at).toLocaleString("vi-VN", {
-                                                        year: 'numeric',
-                                                        month: '2-digit',
-                                                        day: '2-digit',
-                                                        hour: '2-digit',
-                                                        minute: '2-digit'
-                                                    }) : "N/A"}
+                                                    {formatVietnamDateTime(ev.created_at)}
                                                 </td>
                                                 <td className="px-4 py-3 text-center">
                                                     {isOwnEvent && isFuture ? (
@@ -558,13 +565,7 @@ export default function JudgeScheduleCalendar({ judgeName, onLogout, isAdmin }) 
                                         <div className="text-xs">
                                             <span className="block text-outline text-[10px] uppercase font-bold">Thời gian đăng ký</span>
                                             <span className="text-gray-700">
-                                                {ev.created_at ? new Date(ev.created_at).toLocaleString("vi-VN", {
-                                                    year: 'numeric',
-                                                    month: '2-digit',
-                                                    day: '2-digit',
-                                                    hour: '2-digit',
-                                                    minute: '2-digit'
-                                                }) : "N/A"}
+                                                {formatVietnamDateTime(ev.created_at)}
                                             </span>
                                         </div>
                                         {ev.note && (
