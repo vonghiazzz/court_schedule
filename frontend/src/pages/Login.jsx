@@ -69,14 +69,14 @@ function Login({ onLoginSuccess }) {
           </div>
           <div className="login-header-right">
             <a 
-              href="https://zalo.me/0582030018"
+              href="https://zalo.me/0919366392" 
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1 text-xs text-blue-700 bg-blue-50 px-3 py-1.5 rounded-full font-bold no-underline hover:bg-blue-100 transition-colors border border-blue-200"
               title="Gửi yêu cầu hỗ trợ qua Zalo"
             >
               <span className="material-symbols-outlined text-[16px]">chat</span>
-              Zalo Hỗ Trợ: 0582030018 (Nghĩa)
+              Zalo Hỗ Trợ: 0919366392 (Anh Tấn Thành) 
             </a>
             <div className="lang-selector">
               <span className="material-symbols-outlined">language</span>
@@ -196,12 +196,12 @@ function Login({ onLoginSuccess }) {
             <div className="mt-4 pt-3 border-t border-gray-100 text-center">
               <span className="text-xs text-gray-500">Mọi yêu cầu hỗ trợ tài khoản / hệ thống vui lòng gửi qua </span>
               <a 
-                href="https://zalo.me/0582030018" 
+                href="https://zalo.me/0919366392" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="text-xs font-bold text-blue-600 hover:underline"
               >
-                Zalo Quản lý: Nghĩa (0582030018)
+                Zalo Quản lý: Anh Tấn Thành (0919366392) 
               </a>
             </div>
           </div>
@@ -215,9 +215,9 @@ function Login({ onLoginSuccess }) {
             HỆ THỐNG LỊCH XÉT XỬ | © 2026
           </div>
           <div className="footer-links flex items-center gap-4 text-xs">
-            <span>Quản lý website: <strong className="text-gray-800">Nghĩa</strong></span>
+            <span>Quản lý website: <strong className="text-gray-800">Anh Tấn Thành</strong></span>
             <span>•</span>
-            <span>Zalo hỗ trợ & nhận yêu cầu: <a href="https://zalo.me/0582030018" target="_blank" rel="noopener noreferrer" className="text-blue-600 font-bold hover:underline">0582030018</a></span>
+            <span>Zalo hỗ trợ & nhận yêu cầu: <a href="https://zalo.me/0919366392" target="_blank" rel="noopener noreferrer" className="text-blue-600 font-bold hover:underline">0919366392</a></span>
           </div>
         </div>
       </footer>
@@ -229,4 +229,4 @@ function Login({ onLoginSuccess }) {
   );
 }
 
-export default Login;
+export default Login;

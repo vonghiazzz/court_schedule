@@ -158,19 +158,19 @@ export default function Layout({ children, judgeName, onLogout, onChangePassword
                 <div className="mx-1 my-3 p-3 bg-white/10 rounded-xl border border-white/15 text-white/90">
                     <div className="flex items-center gap-2 text-gavel-gold font-bold text-xs">
                         <span className="material-symbols-outlined text-[16px]">support_agent</span>
-                        Quản lý Web: Nghĩa
+                        Quản lý Web: Anh Tấn Thành
                     </div>
                     <p className="text-[11px] text-on-primary-container/80 mt-1 mb-2 leading-tight">
                         Gửi mọi yêu cầu & hỗ trợ qua Zalo
                     </p>
                     <a 
-                        href="https://zalo.me/0582030018" 
+                        href="https://zalo.me/0919366392" 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="w-full bg-gavel-gold hover:bg-yellow-600 text-judicial-navy font-bold text-xs py-1.5 px-2 rounded flex items-center justify-center gap-1 no-underline transition-colors"
                     >
                         <span className="material-symbols-outlined text-[14px]">chat</span>
-                        Zalo: 0582030018
+                        Zalo: 0919366392
                     </a>
                 </div>
 
@@ -226,7 +226,7 @@ export default function Layout({ children, judgeName, onLogout, onChangePassword
                                 title="Liên hệ Zalo Quản lý: Nghĩa (0582030018)"
                             >
                                 <span className="material-symbols-outlined text-[16px] text-blue-600">chat</span>
-                                Zalo: 0582030018 (Nghĩa)
+                                Zalo: 0919366392 (Anh Tấn Thành)
                             </a>
                             {/* <button className="material-symbols-outlined hover:text-judicial-navy border-none bg-transparent cursor-pointer" title="Tìm kiếm">search</button>
                             <button className="material-symbols-outlined hover:text-judicial-navy border-none bg-transparent cursor-pointer" title="Thông báo">notifications</button>
@@ -254,13 +254,13 @@ export default function Layout({ children, judgeName, onLogout, onChangePassword
                                     <div className="fixed inset-0 z-10" onClick={() => setProfileDropdownOpen(false)}></div>
                                     <div className="absolute right-0 mt-2 w-56 bg-white border border-seal-silver rounded-lg shadow-lg py-1 z-20">
                                         <a 
-                                            href="https://zalo.me/0582030018"
+                                            href="https://zalo.me/0919366392"
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="w-full text-left px-4 py-2 text-sm text-blue-700 hover:bg-blue-50 flex items-center gap-2 border-b border-gray-100 no-underline font-semibold"
                                         >
                                             <span className="material-symbols-outlined text-sm text-blue-600">support_agent</span>
-                                            Hỗ trợ Zalo: 0582030018
+                                            Hỗ trợ Zalo: 0919366392 (Anh Tấn Thành)     
                                         </a>
                                         <button 
                                             onClick={() => { setProfileDropdownOpen(false); onChangePassword(); }}

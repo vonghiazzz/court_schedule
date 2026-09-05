@@ -72,7 +72,7 @@ docker-compose up db -d
    ```bash
    cd frontend
    ```
-2. Cài đặt các gói npm:
+2. Cài đặt các gói npm 
    ```bash
    npm install
    ```
