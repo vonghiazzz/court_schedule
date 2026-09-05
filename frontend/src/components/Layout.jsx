@@ -219,11 +219,11 @@ export default function Layout({ children, judgeName, onLogout, onChangePassword
                     <div className="flex items-center gap-6">
                         <div className="flex items-center gap-3 text-outline">
                             <a 
-                                href="https://zalo.me/0582030018"
+                                href="https://zalo.me/0919366392"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="hidden sm:flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-full font-semibold text-xs no-underline border border-blue-200 transition-colors"
-                                title="Liên hệ Zalo Quản lý: Nghĩa (0582030018)"
+                                title="Liên hệ Zalo Quản lý: Anh Tấn Thành (0919366392)"
                             >
                                 <span className="material-symbols-outlined text-[16px] text-blue-600">chat</span>
                                 Zalo: 0919366392 (Anh Tấn Thành)
@@ -300,15 +300,15 @@ export default function Layout({ children, judgeName, onLogout, onChangePassword
                             </div>
                             <span className="hidden md:inline text-gray-300">|</span>
                             <div className="text-xs text-gray-600 flex items-center gap-1.5 flex-wrap justify-center">
-                                <span>Quản lý web: <strong className="text-judicial-navy font-bold">Nghĩa</strong></span>
+                                <span>Quản lý web: <strong className="text-judicial-navy font-bold">Anh Tấn Thành</strong></span>
                                 <span>•</span>
-                                <span>Zalo hỗ trợ & nhận yêu cầu: <a href="https://zalo.me/0582030018" target="_blank" rel="noopener noreferrer" className="font-bold text-blue-700 hover:underline">0582030018</a></span>
+                                <span>Zalo hỗ trợ & nhận yêu cầu: <a href="https://zalo.me/0919366392" target="_blank" rel="noopener noreferrer" className="font-bold text-blue-700 hover:underline">0919366392</a></span>
                             </div>
                         </div>
                         <div className="flex gap-6 text-caption text-outline">
                             <a className="hover:text-judicial-navy transition-colors no-underline" href="#terms">Điều khoản sử dụng</a>
                             <a className="hover:text-judicial-navy transition-colors" href="#privacy">Chính sách bảo mật</a>
-                            <a className="hover:text-judicial-navy transition-colors" href="https://zalo.me/0582030018" target="_blank" rel="noopener noreferrer">Gửi yêu cầu hỗ trợ</a>
+                            <a className="hover:text-judicial-navy transition-colors" href="https://zalo.me/0919366392" target="_blank" rel="noopener noreferrer">Gửi yêu cầu hỗ trợ</a>
                         </div>
                     </div>
                 </footer>

@@ -3,8 +3,8 @@ import { toast } from 'react-toastify';
 
 export default function ZaloSupportWidget() {
     const [isOpen, setIsOpen] = useState(false);
-    const zaloPhone = "0582030018";
-    const managerName = "Nghĩa";
+    const zaloPhone = "0919366392";
+    const managerName = "Anh Tấn Thành";
     const zaloLink = `https://zalo.me/${zaloPhone}`;
 
     const handleCopyPhone = () => {
