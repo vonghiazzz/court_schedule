@@ -1,3 +1,4 @@
+import unicodedata
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
@@ -11,6 +12,20 @@ from app.modules.users import models as user_models
 
 
 router = APIRouter(prefix="/council-members", tags=["Council members"])
+
+
+def vietnamese_alphabetical_key(full_name: str) -> tuple[str, str, str]:
+    """Sort Vietnamese names by given name, then by their complete name."""
+
+    casefolded = full_name.casefold().replace("đ", "d")
+    normalized = unicodedata.normalize("NFD", casefolded)
+    without_accents = "".join(
+        character
+        for character in normalized
+        if unicodedata.category(character) != "Mn"
+    )
+    given_name = without_accents.rsplit(maxsplit=1)[-1]
+    return given_name, without_accents, casefolded
 
 
 def get_db():
@@ -47,7 +62,14 @@ def get_council_members(
     db: Session = Depends(get_db),
     current_user: user_models.User = Depends(auth_service.get_current_user),
 ):
-    return db.query(models.CouncilMember).order_by(models.CouncilMember.full_name.asc()).all()
+    members = db.query(models.CouncilMember).all()
+    return sorted(
+        members,
+        key=lambda member: (
+            *vietnamese_alphabetical_key(member.full_name),
+            member.id,
+        ),
+    )
 
 
 @router.post(

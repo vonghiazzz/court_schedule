@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 
 
 // Constants
-import { MONTHS, YEARS } from '../constants';
+import { MAX_CASES_PER_ROOM_SHIFT, MONTHS, YEARS } from '../constants';
 
 // Hooks
 import { useCalendarData } from "../hooks/useCalendarData";
@@ -218,8 +218,10 @@ export default function JudgeScheduleCalendar({ judgeName, onLogout, isAdmin }) 
         }
 
         const count = schedule.filter(s => s.date === selectedDate && s.room === selectedRoom && s.shift === selectedShift).length;
-        if (!editScheduleId && count >= 2) {
-            toast.warning("Mỗi buổi tại một hội trường chỉ được đăng ký tối đa 2 vụ xử!");
+        if (!editScheduleId && count >= MAX_CASES_PER_ROOM_SHIFT) {
+            toast.warning(
+                `Mỗi buổi tại một hội trường chỉ được đăng ký tối đa ${MAX_CASES_PER_ROOM_SHIFT} vụ xử!`
+            );
             return;
         }
 

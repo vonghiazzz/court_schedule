@@ -10,6 +10,8 @@ from sqlalchemy import or_, func
 
 router = APIRouter(prefix="/schedule", tags=["Schedule"])
 
+MAX_CASES_PER_ROOM_SHIFT = 6
+
 def get_db():
     db = database.SessionLocal()
     try:
@@ -23,7 +25,7 @@ def validate_schedule(
     current_user: users_models.User,
     exclude_id: Optional[int] = None
 ):
-    # Kiểm tra đã có 6 người đăng ký buổi này chưa
+    # Một hội trường trong một ngày và một buổi được xếp tối đa 6 vụ.
     same_slot_query = db.query(models.Schedule).filter(
         models.Schedule.date == schedule.date,
         models.Schedule.room == schedule.room,
@@ -32,9 +34,11 @@ def validate_schedule(
     if exclude_id is not None:
         same_slot_query = same_slot_query.filter(models.Schedule.id != exclude_id)
 
-    same_slot = same_slot_query.all()
-    if len(same_slot) >= 6:
-        raise HTTPException(status_code=400, detail="Mỗi buổi chỉ được đăng ký 6 hội trường!")
+    if same_slot_query.count() >= MAX_CASES_PER_ROOM_SHIFT:
+        raise HTTPException(
+            status_code=400,
+            detail="Mỗi buổi, mỗi hội trường chỉ được đăng ký tối đa 6 vụ!",
+        )
 
     if not schedule.litigant:
         raise HTTPException(status_code=400, detail="Vui lòng nhập tên đương sự!")

@@ -8,6 +8,18 @@ const normalizeSearchText = (value = '') => value
     .replace(/Đ/g, 'D')
     .toLowerCase();
 
+const vietnameseNameCollator = new Intl.Collator('vi', {
+    sensitivity: 'base',
+    usage: 'sort'
+});
+
+const getGivenName = (fullName = '') => fullName.trim().split(/\s+/).pop() || '';
+
+const compareByGivenName = (left, right) => (
+    vietnameseNameCollator.compare(getGivenName(left), getGivenName(right))
+    || vietnameseNameCollator.compare(left, right)
+);
+
 const RegisterModal = ({
     isOpen,
     selectedDate,
@@ -38,7 +50,8 @@ const RegisterModal = ({
     }, [isOpen]);
 
     const availableJurors = useMemo(
-        () => Array.from(new Set([...(jurors || []), ...(selectedJurors || [])])),
+        () => Array.from(new Set([...(jurors || []), ...(selectedJurors || [])]))
+            .sort(compareByGivenName),
         [jurors, selectedJurors]
     );
 
